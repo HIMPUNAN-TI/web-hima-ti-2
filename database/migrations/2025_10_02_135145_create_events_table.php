@@ -19,11 +19,12 @@ return new class extends Migration
             $table->date('regist_start_date');
             $table->date('regist_end_date');
             $table->string('location');
-            $table->string('maps');
+            $table->text('maps');
             $table->text('description');
             $table->string('poster')->nullable();
             $table->string('certificate')->nullable();
-            $table->timestamps();
+            $table->timestamp('created_at');
+            $table->timestamp('updated_at');
         });
     }
 
