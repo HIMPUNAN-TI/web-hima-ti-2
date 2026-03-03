@@ -50,13 +50,14 @@
 
                                 <form action="{{ route('register') }}" method="POST" autocomplete="off" novalidate>
                                     @csrf
+
                                     <div class="mb-3">
                                         <label class="form-label">Nama <span class="required">*</span></label>
                                         <input type="text" name="name"
                                             class="form-control @error('name') is-invalid @enderror"
                                             placeholder="Nama Lengkap Anda" value="{{ old('name') }}" required>
                                         @error('name')
-                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
                                     </div>
                                     <div class="mb-3">
@@ -66,7 +67,7 @@
                                             class="form-control @error('nim') is-invalid @enderror"
                                             placeholder="23xxxxxxxxx" value="{{ old('nim') }}" required>
                                         @error('nim')
-                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
                                     </div>
                                     <div class="mb-3">
@@ -75,26 +76,51 @@
                                             class="form-control @error('email') is-invalid @enderror"
                                             placeholder="emailanda@gmail.com" value="{{ old('email') }}" required>
                                         @error('email')
-                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
                                     </div>
                                     <div class="mb-3">
                                         <label class="form-label">Kata Sandi <span class="required">*</span></label>
                                         <div class="input-group input-group-flat">
-                                            <input type="password" name="password"
+                                            <input type="password" name="password" id="password"
                                                 class="form-control @error('password') is-invalid @enderror"
                                                 placeholder="Minimal 8 karakter" required>
+                                            <span class="input-group-text">
+                                                <a href="#" class="link-secondary toggle-password"
+                                                    data-target="password" title="Tampilkan sandi"
+                                                    data-bs-toggle="tooltip">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                                        <path d="M10.584 10.587a2 2 0 0 0 2.828 2.83" />
+                                                        <path d="M9.363 5.365a9.466 9.466 0 0 1 2.637 -.365c4 0 7.333 2.333 10 7c-.778 1.361 -1.612 2.524 -2.503 3.488m-2.14 1.861c-1.631 1.1 -3.415 1.651 -5.357 1.651c-4 0 -7.333 -2.333 -10 -7c1.369 -2.395 2.913 -4.175 4.632 -5.341" />
+                                                        <path d="M3 3l18 18" />
+                                                    </svg>
+                                                </a>
+                                            </span>
                                         </div>
                                         @error('password')
-                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
                                     </div>
                                     <div class="mb-3">
                                         <label class="form-label">Konfirmasi Kata Sandi <span
                                                 class="required">*</span></label>
                                         <div class="input-group input-group-flat">
-                                            <input type="password" name="password_confirmation" class="form-control"
+                                            <input type="password" name="password_confirmation"
+                                                id="password_confirmation" class="form-control"
                                                 placeholder="Ulangi Kata Sandi" required>
+                                            <span class="input-group-text">
+                                                <a href="#" class="link-secondary toggle-password"
+                                                    data-target="password_confirmation" title="Tampilkan sandi"
+                                                    data-bs-toggle="tooltip">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                                        <path d="M10.584 10.587a2 2 0 0 0 2.828 2.83" />
+                                                        <path d="M9.363 5.365a9.466 9.466 0 0 1 2.637 -.365c4 0 7.333 2.333 10 7c-.778 1.361 -1.612 2.524 -2.503 3.488m-2.14 1.861c-1.631 1.1 -3.415 1.651 -5.357 1.651c-4 0 -7.333 -2.333 -10 -7c1.369 -2.395 2.913 -4.175 4.632 -5.341" />
+                                                        <path d="M3 3l18 18" />
+                                                    </svg>
+                                                </a>
+                                            </span>
                                         </div>
                                     </div>
                                     <div class="mb-3">
@@ -103,41 +129,41 @@
                                             class="form-control @error('generation') is-invalid @enderror"
                                             placeholder="Contoh: 2023" value="{{ old('generation') }}" required>
                                         @error('generation')
-                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
                                     </div>
                                     <div class="mb-3">
                                         <label class="form-label">Nomor Telepon <span class="required">*</span></label>
                                         <input type="text" name="telephone_number"
-                                            class="form-control @error('telephone_number"') is-invalid @enderror"
-                                            placeholder="08xxxxxxxxxx" value="{{ old('telephone_number"') }}" required>
-                                        @error('telephone_number"')
-                                            <div class="invalid-feedback">{{ $message }}</div>
+                                            class="form-control @error('telephone_number') is-invalid @enderror"
+                                            placeholder="08xxxxxxxxxx" value="{{ old('telephone_number') }}" required>
+                                        @error('telephone_number')
+                                        <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
                                     </div>
                                     <div class="mb-3">
                                         <div class="form-label">Prodi (Program Studi) <span class="required">*</span>
                                         </div>
-                                        <select class="form-select @error('prodi') is-invalid @enderror"
-                                            name="prodi" required>
-                                            <option value="Teknologi Informasi"
-                                                {{ old('prodi') == 'Teknologi Informasi' ? 'selected' : '' }}>Teknologi
+                                        <select class="form-select @error('prodi') is-invalid @enderror" name="prodi"
+                                            required>
+                                            <option value="Teknologi Informasi" {{ old('prodi')=='Teknologi Informasi'
+                                                ? 'selected' : '' }}>Teknologi
                                                 Informasi</option>
-                                            <option value="Sistem Informasi"
-                                                {{ old('prodi') == 'Sistem Informasi' ? 'selected' : '' }}>Sistem
+                                            <option value="Sistem Informasi" {{ old('prodi')=='Sistem Informasi'
+                                                ? 'selected' : '' }}>Sistem
                                                 Informasi</option>
-                                            <option value="Sistem Komputer"
-                                                {{ old('prodi') == 'Sistem Komputer' ? 'selected' : '' }}>Sistem
+                                            <option value="Sistem Komputer" {{ old('prodi')=='Sistem Komputer'
+                                                ? 'selected' : '' }}>Sistem
                                                 Komputer</option>
-                                            <option value="Manajemen Informatika"
-                                                {{ old('prodi') == 'Manajemen Informatika' ? 'selected' : '' }}>
+                                            <option value="Manajemen Informatika" {{
+                                                old('prodi')=='Manajemen Informatika' ? 'selected' : '' }}>
                                                 Manajemen Informatika</option>
-                                            <option value="Bisnis Digital"
-                                                {{ old('prodi') == 'Bisnis Digital' ? 'selected' : '' }}>Bisnis Digital
+                                            <option value="Bisnis Digital" {{ old('prodi')=='Bisnis Digital'
+                                                ? 'selected' : '' }}>Bisnis Digital
                                             </option>
                                         </select>
                                         @error('prodi')
-                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
                                     </div>
                                     <div class="form-footer">
@@ -160,6 +186,84 @@
     </div>
     <script src="{{ asset('tabler/dist/js/tabler.min.js') }}" defer></script>
     <script src="{{ asset('tabler/dist/js/demo.min.js') }}" defer></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const togglers = document.querySelectorAll('.toggle-password');
+
+            togglers.forEach(toggler => {
+                toggler.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('data-target');
+                    const input = document.getElementById(targetId);
+
+                    if (input) {
+                        const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
+                        input.setAttribute('type', type);
+
+                        // Update Icon
+                        if (type === 'text') {
+                            // Show Eye Icon when content is visible
+                            this.innerHTML = `
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                    <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+                                    <path d="M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6" />
+                                </svg>
+                            `;
+                        } else {
+                            // Show Eye-off Icon when content is hidden
+                            this.innerHTML = `
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                    <path d="M10.584 10.587a2 2 0 0 0 2.828 2.83" />
+                                    <path d="M9.363 5.365a9.466 9.466 0 0 1 2.637 -.365c4 0 7.333 2.333 10 7c-.778 1.361 -1.612 2.524 -2.503 3.488m-2.14 1.861c-1.631 1.1 -3.415 1.651 -5.357 1.651c-4 0 -7.333 -2.333 -10 -7c1.369 -2.395 2.913 -4.175 4.632 -5.341" />
+                                    <path d="M3 3l18 18" />
+                                </svg>
+                            `;
+                        }
+                    }
+                });
+            });
+        });
+    </script>
+
+    @if (session('success') || session('error'))
+    <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 9999">
+        <div id="flashToast" class="toast align-items-center text-white border-0
+            {{ session('success') ? 'bg-success' : 'bg-danger' }}" role="alert" aria-live="assertive"
+            aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon me-2" width="24" height="24" viewBox="0 0 24 24"
+                        stroke-width="2" stroke="currentColor" fill="none">
+                        @if (session('success'))
+                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                        <path d="M5 12l5 5l10 -10" />
+                        @else
+                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                        <path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />
+                        <path d="M12 8v4" />
+                        <path d="M12 16l.01 0" />
+                        @endif
+                    </svg>
+                    {{ session('success') ?? session('error') }}
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+                    aria-label="Close"></button>
+            </div>
+        </div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var toastEl = document.getElementById('flashToast');
+            if (toastEl) {
+                var toast = new bootstrap.Toast(toastEl, { delay: 4000 });
+                toast.show();
+            }
+        });
+    </script>
+    @endif
 </body>
 
 </html>

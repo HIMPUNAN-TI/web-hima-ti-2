@@ -48,7 +48,8 @@
                                 <p class="text-muted text-center mb-4">Masuk sebagai admin untuk melanjutkan.</p>
 
                                 <form action="{{ route('admin.login') }}" method="POST" autocomplete="off" novalidate>
-                                    @csrf <div class="mb-3">
+                                    @csrf 
+                                    <div class="mb-3">
                                         <label class="form-label">Surel (Email) <span class="required">*</span></label>
                                         <input type="email" name="email"
                                             class="form-control @error('email') is-invalid @enderror"
@@ -60,9 +61,21 @@
                                     <div class="mb-2">
                                         <label class="form-label">Kata Sandi <span class="required">*</span></label>
                                         <div class="input-group input-group-flat">
-                                            <input type="password" name="password"
+                                            <input type="password" name="password" id="password"
                                                 class="form-control @error('password') is-invalid @enderror"
                                                 placeholder="Kata Sandi Anda" required>
+                                            <span class="input-group-text">
+                                                <a href="#" class="link-secondary" id="toggle-password" title="Lihat sandi"
+                                                    data-bs-toggle="tooltip">
+                                                    <!-- Default Icon: Eye-off (Hidden State) -->
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                                        <path d="M10.584 10.587a2 2 0 0 0 2.828 2.83" />
+                                                        <path d="M9.363 5.365a9.466 9.466 0 0 1 2.637 -.365c4 0 7.333 2.333 10 7c-.778 1.361 -1.612 2.524 -2.503 3.488m-2.14 1.861c-1.631 1.1 -3.415 1.651 -5.357 1.651c-4 0 -7.333 -2.333 -10 -7c1.369 -2.395 2.913 -4.175 4.632 -5.341" />
+                                                        <path d="M3 3l18 18" />
+                                                    </svg>
+                                                </a>
+                                            </span>
                                         </div>
                                         @error('password')
                                             <div class="invalid-feedback">{{ $message }}</div>
@@ -94,6 +107,43 @@
     </div>
     <script src="{{ asset('tabler/dist/js/tabler.min.js') }}" defer></script>
     <script src="{{ asset('tabler/dist/js/demo.min.js') }}" defer></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const togglePassword = document.getElementById('toggle-password');
+            const passwordInput = document.getElementById('password');
+
+            if (togglePassword && passwordInput) {
+                togglePassword.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    
+                    const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                    passwordInput.setAttribute('type', type);
+
+                    if (type === 'text') {
+                        // Show Eye Icon when visible
+                        this.innerHTML = `
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+                                <path d="M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6" />
+                            </svg>
+                        `;
+                    } else {
+                        // Show Eye-off Icon when hidden
+                        this.innerHTML = `
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                <path d="M10.584 10.587a2 2 0 0 0 2.828 2.83" />
+                                <path d="M9.363 5.365a9.466 9.466 0 0 1 2.637 -.365c4 0 7.333 2.333 10 7c-.778 1.361 -1.612 2.524 -2.503 3.488m-2.14 1.861c-1.631 1.1 -3.415 1.651 -5.357 1.651c-4 0 -7.333 -2.333 -10 -7c1.369 -2.395 2.913 -4.175 4.632 -5.341" />
+                                <path d="M3 3l18 18" />
+                            </svg>
+                        `;
+                    }
+                });
+            }
+        });
+    </script>
 </body>
 
 </html>
