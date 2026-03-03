@@ -2,17 +2,20 @@
 
 @section('content')
     {{-- ============================= Hero Section ============================= --}}
-    <section class="hero min-h-screen" id="home" style="background-image: url({{ asset('image/landing/dash5.png') }});">
+    <section class="hero min-h-screen" id="home" style="background-image: url({{ asset('image/landing/dash6.png') }});">
         <div class="hero-overlay bg-[rgba(1,64,151,0.75)]"></div>
 
         <div class="hero-content text-neutral-content text-center">
             <div class="max-w-4xl">
-                <div
-                    class="flex items-center justify-center mx-auto gap-6 w-fit bg-white/75 rounded-md shadow-lg py-4 px-8 mb-8">
+                <div class="flex flex-wrap lg:flex-nowrap items-center justify-center mx-auto gap-2 lg:gap-4 w-fit max-w-full bg-white/75 rounded-md shadow-lg py-2 px-4 mb-8">
                     <img src="{{ asset('image/landing/logo/hima.png') }}" alt="Logo Himaprodi TI"
-                        class="w-32 h-32 lg:w-48 lg:h-48">
+                        class="w-32 h-32 lg:w-48 lg:h-48 object-contain">
+                    
+                    <img src="{{ asset('image/landing/logo/Kabinet Cakra Pragnya.png') }}" alt="Logo Kabinet"
+                        class="w-32 h-32 lg:w-48 lg:h-48 object-contain">
+                    
                     <img src="{{ asset('image/landing/logo/logo_raw.png') }}" alt="Logo STIKOM Bali"
-                        class="w-32 h-32 lg:w-48 lg:h-48">
+                        class="w-32 h-32 lg:w-48 lg:h-48 object-contain">
                 </div>
                 <h1 class="mb-5 text-5xl font-bold text-white">Himaprodi ITB Stikom Bali</h1>
                 <p class="mb-5">
@@ -88,7 +91,7 @@
         <div class="grid grid-cols-2 gap-4 h-[512px]">
             <!-- Gambar Kiri Atas - Tinggi -->
             <div class="relative overflow-hidden rounded-lg row-span-2">
-                <img src="{{ asset('image/landing/dash1.jpg') }}" alt="About Us" class="w-full h-full object-cover">
+                <img src="{{ asset('image/landing/dash7.jpg') }}" alt="About Us" class="w-full h-full object-cover">
             </div>
             <!-- Gambar Kanan Atas - Pendek -->
             <div class="relative overflow-hidden rounded-lg">
