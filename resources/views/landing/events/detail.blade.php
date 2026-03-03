@@ -26,7 +26,7 @@
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
             <!-- Left Column - Event Poster -->
             <div class="w-full">
-                <div class="sticky top-24">
+                <div class="top-24">
                     <img src="{{ asset('image/events/posters/' . $event->poster) }}" alt="{{ $event->name }}"
                         class="w-full rounded-lg shadow-xl">
                 </div>
