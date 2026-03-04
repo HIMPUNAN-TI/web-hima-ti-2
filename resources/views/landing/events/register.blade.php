@@ -114,7 +114,6 @@
                             Form Pendaftaran
                         </h2>
                         <p class="text-gray-600 mb-6">Lengkapi form di bawah ini untuk mendaftar event</p>
-
                         <form action="{{ route('landing.events.register', $event->id) }}" method="POST"
                             enctype="multipart/form-data">
                             @csrf

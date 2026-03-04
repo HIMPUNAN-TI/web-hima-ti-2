@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('email')->unique();
+            $table->string('subject');
             $table->text('message');
             $table->timestamp('created_at');
             $table->timestamp('updated_at');
