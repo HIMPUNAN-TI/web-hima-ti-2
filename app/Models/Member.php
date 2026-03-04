@@ -18,11 +18,14 @@ class Member extends Model
         'telephone_number',
         'prodi',
         'generation',
+        'is_stikom',
+        'ktm_ktp_path',
     ];
 
     protected function casts(): array
     {
         return [
+            'is_stikom' => 'boolean',
             'created_at' => 'datetime',
             'updated_at' => 'datetime',
         ];

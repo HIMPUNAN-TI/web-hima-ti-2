@@ -111,29 +111,53 @@ class AuthController extends Controller
     // Proses registrasi
     public function register(Request $request)
     {
-        $validator = Validator::make($request->all(), [
+        $rules = [
             'name' => 'required|string|max:255',
-            'nim' => 'required|string|max:255|unique:members,nim',
             'email' => 'required|email|max:255|unique:members,email',
             'password' => 'required|string|min:8|confirmed',
-            'generation' => 'required|string|max:255',
-            'prodi' => 'required|string|max:255',
+            'is_stikom' => 'required|boolean',
             'telephone_number' => 'required|string|max:15',
-        ], [
+            // payment proof removed
+        ];
+
+        $messages = [
             'name.required' => 'Nama wajib diisi',
-            'nim.required' => 'NIM wajib diisi',
-            'nim.unique' => 'NIM sudah terdaftar',
             'email.required' => 'Email wajib diisi',
             'email.email' => 'Format email tidak valid',
             'email.unique' => 'Email sudah terdaftar',
             'password.required' => 'Kata sandi wajib diisi',
             'password.min' => 'Kata sandi minimal 8 karakter',
             'password.confirmed' => 'Konfirmasi kata sandi tidak sesuai',
-            'generation.required' => 'Angkatan wajib diisi',
-            'prodi.required' => 'Program studi wajib diisi',
+            'is_stikom.required' => 'Silakan pilih apakah Anda mahasiswa STIKOM',
+            'is_stikom.boolean' => 'Nilai pilihan tidak valid',
             'telephone_number.required' => 'Nomor telepon wajib diisi',
             'telephone_number.max' => 'Nomor telepon maksimal 15 karakter',
-        ]);
+            // payment proof validation removed
+        ];
+
+        // add additional rules if student of STIKOM
+        if ($request->input('is_stikom') == '1' || $request->input('is_stikom') === 1) {
+            $rules = array_merge($rules, [
+                'nim' => 'required|string|max:255|unique:members,nim',
+                'generation' => 'required|string|max:255',
+                'prodi' => 'required|string|max:255',
+            ]);
+
+            $messages = array_merge($messages, [
+                'nim.required' => 'NIM wajib diisi',
+                'nim.unique' => 'NIM sudah terdaftar',
+                'generation.required' => 'Angkatan wajib diisi',
+                'prodi.required' => 'Program studi wajib diisi',
+                'telephone_number.required' => 'Nomor telepon wajib diisi',
+                'telephone_number.max' => 'Nomor telepon maksimal 15 karakter',
+                'ktm_or_ktp.required' => 'Silakan unggah KTM atau KTP Anda',
+                'ktm_or_ktp.file' => 'File KTM/KTP tidak valid',
+                'ktm_or_ktp.mimes' => 'File KTM/KTP harus berupa jpg, png, atau pdf',
+                'ktm_or_ktp.max' => 'File KTM/KTP maksimal 2MB',
+            ]);
+        }
+
+        $validator = Validator::make($request->all(), $rules, $messages);
 
         if ($validator->fails()) {
             return redirect()->back()
@@ -150,15 +174,27 @@ class AuthController extends Controller
                 'role' => 'member',
             ]);
 
-            // Buat member dengan relasi ke user
-            Member::create([
+            // Siapkan data member dasar
+            $memberData = [
                 'user_id' => $user->id,
-                'nim' => $request->nim,
                 'email' => $request->email,
-                'prodi' => $request->prodi,
-                'generation' => $request->generation,
-                'telephone_number' => $request->telephone_number,
-            ]);
+                'is_stikom' => (bool) $request->input('is_stikom'),
+            ];
+
+            if ($request->input('is_stikom')) {
+                $memberData['nim'] = $request->nim;
+                $memberData['prodi'] = $request->prodi;
+                $memberData['generation'] = $request->generation;
+            }
+
+            // data always provided
+            $memberData['telephone_number'] = $request->telephone_number;
+
+            // no payment proof handling
+
+
+            // Buat member dengan data yang telah disiapkan
+            Member::create($memberData);
 
             // Auto login setelah registrasi
             Auth::login($user);
