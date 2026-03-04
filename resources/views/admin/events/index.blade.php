@@ -41,7 +41,7 @@
         .card-actions {
             position: absolute;
             top: 10px;
-            left: 10px;
+            left: -5px;
             z-index: 1;
         }
 
