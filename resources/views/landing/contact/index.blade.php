@@ -2,7 +2,7 @@
 
 @section('page-title')
     <section class="hero min-h-[40vh] mt-[73px] justify-items-start"
-        style="background-image: url({{ asset('image/landing/dash5.png') }});">
+        style="background-image: url({{ asset('image/landing/dash6.png') }});">
         <div class="hero-overlay bg-[rgba(1,64,151,0.75)]"></div>
 
         <div class="hero-content text-neutral-content text-center px-8 md:px-16 lg:px-32">

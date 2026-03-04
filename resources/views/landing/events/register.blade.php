@@ -218,6 +218,52 @@
                                 @enderror
                             </div>
 
+                            <!-- KTP/KTM -->
+                            <div class="form-control mb-6">
+                                <label class="label">
+                                    <span class="label-text font-semibold text-gray-700">
+                                        KTP/KTM <span class="text-error">*</span>
+                                    </span>
+                                </label>
+                                <input type="file" name="ktp_ktm" accept="image/*,.pdf"
+                                    class="file-input file-input-bordered w-full @error('ktp_ktm') file-input-error @enderror"
+                                    required>
+                                <label class="label">
+                                    <span class="label-text-alt text-gray-600">
+                                        <i class="fa-solid fa-circle-info mr-1"></i>
+                                        Format: JPG, PNG, atau PDF (Max. 2MB)
+                                    </span>
+                                </label>
+                                @error('ktp_ktm')
+                                    <label class="label">
+                                        <span class="label-text-alt text-error">{{ $message }}</span>
+                                    </label>
+                                @enderror
+                            </div>
+
+                            <!-- Asal Instansi -->
+                            <div class="form-control mb-4">
+                                <label class="label">
+                                    <span class="label-text font-semibold text-gray-700">
+                                        Asal Instansi <span class="text-error">*</span>
+                                    </span>
+                                </label>
+                                <input type="text" name="asal_instansi" placeholder="Masukan Asal Instansi"
+                                    class="input input-bordered w-full @error('asal_instansi') input-error @enderror"
+                                    value="{{ old('asal_instansi', Auth::user()->member->asal_instansi ?? '') }}" required>
+                                <label class="label">
+                                    <span class="label-text-alt text-gray-600">
+                                        <i class="fa-solid fa-circle-info mr-1"></i>
+                                        SMA/SMK, KAMPUS, UMUM
+                                    </span>
+                                </label>
+                                @error('asal_instansi')
+                                    <label class="label">
+                                        <span class="label-text-alt text-error">{{ $message }}</span>
+                                    </label>
+                                @enderror
+                            </div>
+
                             <!-- Payment Instructions -->
                             <div class="alert alert-warning mb-6">
                                 <i class="fa-solid fa-triangle-exclamation"></i>
