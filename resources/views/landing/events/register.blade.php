@@ -30,7 +30,7 @@
                 <div class="sticky top-24">
                     <div class="card bg-white shadow-xl">
                         <figure>
-                            <img src="{{ asset('image/landing/event-1.jpg') }}" alt="{{ $event->title }}"
+                            <img src="{{ asset('image/events/posters/' . $event->poster) }}" alt="{{ $event->title }}"
                                 class="w-full object-cover" style="height: 400px;">
                         </figure>
                         <div class="card-body">
