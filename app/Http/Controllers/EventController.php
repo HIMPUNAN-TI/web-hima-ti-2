@@ -3,12 +3,102 @@
 namespace App\Http\Controllers;
 
 use App\Models\Event;
+use App\Services\GoogleSheetsService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 
 class EventController extends Controller
 {
+    protected GoogleSheetsService $sheets;
+    protected string $spreadsheetId;
+    protected string $sheetName = 'Events'; // nama tab/sheet di spreadsheet
+
+    public function __construct(GoogleSheetsService $sheets)
+    {
+        $this->sheets = $sheets;
+        $this->spreadsheetId = config('services.google.spreadsheet_id');
+    }
+
+    /**
+     * Sync satu event ke Google Sheets.
+     * Cari baris berdasarkan ID di kolom A, lalu update.
+     * Jika belum ada, append baris baru.
+     */
+    protected function syncEventToSheets(Event $event): void
+    {
+        try {
+            $row = [
+                $event->id,
+                $event->name,
+                (float) $event->price,
+                $event->date?->format('Y-m-d'),
+                $event->regist_start_date?->format('Y-m-d'),
+                $event->regist_end_date?->format('Y-m-d'),
+                $event->location,
+                $event->description,
+                $event->maps,
+                $event->created_at?->format('Y-m-d H:i:s'),
+            ];
+
+            // Baca semua data untuk cari baris dengan ID yang sama
+            $existing = $this->sheets->getValues(
+                $this->spreadsheetId,
+                $this->sheetName . '!A:A'
+            );
+
+            $rowIndex = null;
+            foreach ($existing as $i => $cell) {
+                if (isset($cell[0]) && (string)$cell[0] === (string)$event->id) {
+                    $rowIndex = $i + 1; // Google Sheets 1-indexed
+                    break;
+                }
+            }
+
+            if ($rowIndex) {
+                // Update baris yang sudah ada
+                $range = $this->sheetName . '!A' . $rowIndex . ':J' . $rowIndex;
+                $this->sheets->updateValues($this->spreadsheetId, $range, [$row]);
+            } else {
+                // Belum ada, tambah baris baru
+                $this->sheets->appendValues(
+                    $this->spreadsheetId,
+                    $this->sheetName . '!A:J',
+                    [$row]
+                );
+            }
+        } catch (\Throwable $e) {
+            Log::error('Google Sheets sync failed: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Hapus baris event dari Google Sheets berdasarkan ID.
+     * (Isi sel jadi kosong — clear row)
+     */
+    protected function removeEventFromSheets(int $eventId): void
+    {
+        try {
+            $existing = $this->sheets->getValues(
+                $this->spreadsheetId,
+                $this->sheetName . '!A:A'
+            );
+
+            foreach ($existing as $i => $cell) {
+                if (isset($cell[0]) && (string)$cell[0] === (string)$eventId) {
+                    $rowIndex = $i + 1;
+                    $this->sheets->clearValues(
+                        $this->spreadsheetId,
+                        $this->sheetName . '!A' . $rowIndex . ':J' . $rowIndex
+                    );
+                    break;
+                }
+            }
+        } catch (\Exception $e) {
+            Log::error('Google Sheets delete sync failed: ' . $e->getMessage());
+        }
+    }
     /**
      * Display a listing of the resource.
      */
@@ -97,12 +187,16 @@ class EventController extends Controller
                 $eventData['certificate'] = $certificateName;
             }
 
-            Event::create($eventData);
-
-            return redirect()->route('events.index')->with('success', 'Event berhasil dibuat.');
+            $event = Event::create($eventData);
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Terjadi kesalahan saat membuat event.')->withInput();
+            \Illuminate\Support\Facades\Log::error('Gagal membuat event: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
+            return redirect()->back()->with('error', 'Terjadi kesalahan saat membuat event: ' . $e->getMessage())->withInput();
         }
+
+        // Sync ke Google Sheets (terpisah dari try-catch utama agar tidak menggagalkan simpan event)
+        $this->syncEventToSheets($event->fresh());
+
+        return redirect()->route('events.index')->with('success', 'Event berhasil dibuat.');
     }
 
     /**
@@ -197,11 +291,15 @@ class EventController extends Controller
             }
 
             $event->update($eventData);
-
-            return redirect()->route('events.index')->with('success', 'Event berhasil diperbarui.');
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Terjadi kesalahan saat memperbarui event.')->withInput();
+            \Illuminate\Support\Facades\Log::error('Gagal update event: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
+            return redirect()->back()->with('error', 'Terjadi kesalahan saat memperbarui event: ' . $e->getMessage())->withInput();
         }
+
+        // Sync ke Google Sheets (terpisah dari try-catch utama agar tidak menggagalkan update event)
+        $this->syncEventToSheets($event->fresh());
+
+        return redirect()->route('events.index')->with('success', 'Event berhasil diperbarui.');
     }
 
     /**
@@ -219,7 +317,11 @@ class EventController extends Controller
                 unlink(public_path('image/events/certificates/' . $event->certificate));
             }
 
+            $eventId = $event->id;
             $event->delete();
+
+            // Hapus dari Google Sheets
+            $this->removeEventFromSheets($eventId);
 
             return redirect()->route('events.index')->with('success', 'Event berhasil dihapus.');
         } catch (\Exception $e) {

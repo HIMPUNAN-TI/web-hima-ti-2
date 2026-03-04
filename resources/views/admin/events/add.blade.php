@@ -23,7 +23,7 @@
     <div class="container-xl">
         <div class="row row-deck row-cards">
             <div class="col-12">
-                <form class="card" method="POST" action="{{ route('events.store') }}" enctype="multipart/form-data">
+                <form class="card" method="POST" action="{{ route('events.store') }}" enctype="multipart/form-data" novalidate>
                     @csrf
                     <div class="card-header">
                         <h3 class="card-title">Formulir Tambah Event</h3>
@@ -119,7 +119,7 @@
                             <div>
                                 <input type="url" name="maps"
                                     class="form-control @error('maps') is-invalid @enderror"
-                                    placeholder="https://maps.google.com/..." value="{{ old('maps') }}" required>
+                                    placeholder="https://maps.google.com/..." value="{{ old('maps') }}">
                                 @error('maps')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
