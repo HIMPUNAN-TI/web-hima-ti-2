@@ -2,7 +2,7 @@
 
 @section('page-title')
     <section class="hero min-h-[40vh] mt-[73px] justify-items-start"
-        style="background-image: url({{ asset('image/landing/dash5.png') }});">
+        style="background-image: url({{ asset('image/landing/dash6.png') }});">
         <div class="hero-overlay bg-[rgba(1,64,151,0.75)]"></div>
 
         <div class="hero-content text-neutral-content text-center px-8 md:px-16 lg:px-32">
@@ -79,7 +79,7 @@
         <div class="grid grid-cols-2 gap-4 h-[512px]">
             <!-- Gambar Kiri Atas - Tinggi -->
             <div class="relative overflow-hidden rounded-lg row-span-2">
-                <img src="{{ asset('image/landing/dash1.jpg') }}" alt="About Us" class="w-full h-full object-cover">
+                <img src="{{ asset('image/landing/dash7.jpg') }}" alt="About Us" class="w-full h-full object-cover">
             </div>
             <!-- Gambar Kanan Atas - Pendek -->
             <div class="relative overflow-hidden rounded-lg">

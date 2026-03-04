@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Models\Member;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 
 class AuthController extends Controller
@@ -48,12 +49,12 @@ class AuthController extends Controller
         // Cari user berdasarkan email
         $user = User::where('email', $email)->first();
 
-        if ($user && $user->password === $password) {
+        if ($user && Hash::check($password, $user->password)) {
             // Pastikan yang login di halaman ini adalah member
             if ($user->role !== 'member') {
                 return redirect()->back()->withErrors(['email' => 'Akun ini bukan member. Gunakan halaman login admin.'])->withInput();
             }
-            
+
             Auth::login($user, $remember);
             $request->session()->regenerate();
             return redirect()->intended('/')->with('success', 'Login berhasil!');
@@ -88,12 +89,12 @@ class AuthController extends Controller
         // Cari user berdasarkan email
         $user = User::where('email', $email)->first();
 
-        if ($user && $user->password === $password) {
+        if ($user && Hash::check($password, $user->password)) {
             // Pastikan yang login di halaman ini adalah admin
             if ($user->role !== 'admin') {
                 return redirect()->back()->withErrors(['email' => 'Akun ini bukan admin. Gunakan halaman login member.'])->withInput();
             }
-            
+
             Auth::login($user, $remember);
             $request->session()->regenerate();
             return redirect()->intended('/admin/dashboard')->with('success', 'Login berhasil!');
@@ -114,7 +115,7 @@ class AuthController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
             'nim' => 'required|string|max:255|unique:members,nim',
-            'email' => 'required|email|max:255|unique:members,email',
+            'email' => 'required|email|max:255|unique:members,email|unique:users,email',
             'password' => 'required|string|min:8|confirmed',
             'generation' => 'required|string|max:255',
             'prodi' => 'required|string|max:255',
@@ -146,7 +147,7 @@ class AuthController extends Controller
             $user = User::create([
                 'name' => $request->name,
                 'email' => $request->email,
-                'password' => $request->password, // Password disimpan sebagai plain text
+                'password' => Hash::make($request->password),
                 'role' => 'member',
             ]);
 
@@ -163,8 +164,9 @@ class AuthController extends Controller
             // Auto login setelah registrasi
             Auth::login($user);
 
-            return redirect()->route('member.dashboard.index')->with('success', 'Registrasi berhasil! Selamat datang di Himaprodi ITB STIKOM Bali.');
-        } catch (\Exception $e) {
+            return redirect()->route('landing.index')->with('success', 'Registrasi berhasil! Selamat datang di Himaprodi ITB STIKOM Bali.');
+        }
+        catch (\Exception $e) {
             return redirect()->back()
                 ->with('error', 'Terjadi kesalahan saat registrasi. Silakan coba lagi.')
                 ->withInput();
