@@ -17,7 +17,7 @@ Login Admin to <b>Himaprodi ITB Stikom Bali</b>
 {{-- 5. Isi Konten Form --}}
 @section('content')
 <div class="mb-3">
-    <label class="form-label">Surel (Email) <span class="required">*</span></label>
+    <label class="form-label">Email <span class="required">*</span></label>
     <input type="email" name="email"
         class="form-control @error('email') is-invalid @enderror"
         placeholder="email@gmail.com" value="{{ old('email') }}" required>
@@ -31,7 +31,7 @@ Login Admin to <b>Himaprodi ITB Stikom Bali</b>
         <input type="password" name="password" id="password"
             class="form-control @error('password') is-invalid @enderror"
             placeholder="Kata Sandi Anda" required>
-        <span class="input-group-text">
+        <span class="input-group-text px-2">
             <a href="#" class="link-secondary toggle-password" title="Lihat sandi"
                 data-bs-toggle="tooltip" data-target="password">
                 <!-- Default Icon: Eye-off (Hidden State) -->

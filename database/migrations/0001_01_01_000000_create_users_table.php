@@ -17,7 +17,22 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
-            $table->rememberToken();    
+            
+            // Kolom tambahan sesuai logika AuthController di Canvas
+            $table->string('telephone_number');        // Nomor telepon aktif
+            $table->boolean('is_stikom')->default(true); // Status mahasiswa STIKOM
+            
+            // Kolom khusus mahasiswa STIKOM (nullable karena bisa dikosongkan jika bukan mahasiswa)
+            $table->string('nim')->nullable()->unique();
+            $table->string('generation')->nullable();
+            $table->string('prodi')->nullable();
+            
+            // Kolom khusus non-mahasiswa STIKOM
+            $table->string('instansi_type')->nullable(); // SMA/SMK, Kuliah, atau Umum
+            $table->string('asal_sekolah')->nullable();  // Jika SMA/SMK
+            $table->string('asal_kampus')->nullable();   // Jika Kuliah (Luar)
+
+            $table->rememberToken();
             $table->timestamps();
         });
 

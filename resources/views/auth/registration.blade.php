@@ -93,22 +93,22 @@ Registrasi <b>Himaprodi ITB Stikom Bali</b>
     {{-- Input Asal Sekolah --}}
     <div id="asal-sekolah-container" class="mb-3 dynamic-container">
         <label class="form-label">Nama Asal Sekolah <span class="required text-danger">*</span></label>
-        <input type="text" name="asal_sekolah" id="asal_sekolah_input" class="form-control @error('asal_sekolah') is-invalid @enderror" 
-               placeholder="Contoh: SMKN 1 Denpasar" value="{{ old('asal_sekolah') }}">
+        <input type="text" name="asal_sekolah" id="asal_sekolah_input" class="form-control @error('asal_sekolah') is-invalid @enderror"
+            placeholder="Contoh: SMKN 1 Denpasar" value="{{ old('asal_sekolah') }}">
         @error('asal_sekolah') <div class="invalid-feedback">{{ $message }}</div> @enderror
     </div>
 
     {{-- Input Asal Kampus --}}
     <div id="asal-kampus-container" class="mb-3 dynamic-container">
         <label class="form-label">Nama Asal Kampus <span class="required text-danger">*</span></label>
-        <input type="text" name="asal_kampus" id="asal_kampus_input" class="form-control @error('asal_kampus') is-invalid @enderror" 
-               placeholder="Contoh: Universitas Udayana" value="{{ old('asal_kampus') }}">
+        <input type="text" name="asal_kampus" id="asal_kampus_input" class="form-control @error('asal_kampus') is-invalid @enderror"
+            placeholder="Contoh: Universitas Udayana" value="{{ old('asal_kampus') }}">
         @error('asal_kampus') <div class="invalid-feedback">{{ $message }}</div> @enderror
     </div>
 </div>
 
 <div class="mb-3 border-top pt-3">
-    <label class="form-label">Surel (Email) <span class="required text-danger">*</span></label>
+    <label class="form-label">Email <span class="required text-danger">*</span></label>
     <input type="email" name="email" class="form-control @error('email') is-invalid @enderror"
         placeholder="email@gmail.com" value="{{ old('email') }}" required>
     @error('email') <div class="invalid-feedback">{{ $message }}</div> @enderror
@@ -119,7 +119,7 @@ Registrasi <b>Himaprodi ITB Stikom Bali</b>
     <div class="input-group input-group-flat">
         <input type="password" name="password" id="password"
             class="form-control @error('password') is-invalid @enderror" placeholder="Minimal 8 karakter" required>
-        <span class="input-group-text">
+        <span class="input-group-text px-2">
             <a href="#" class="link-secondary toggle-password" data-target="password" title="Tampilkan sandi"
                 data-bs-toggle="tooltip">
                 <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
@@ -136,8 +136,23 @@ Registrasi <b>Himaprodi ITB Stikom Bali</b>
 
 <div class="mb-3">
     <label class="form-label">Konfirmasi Kata Sandi <span class="required text-danger">*</span></label>
-    <input type="password" name="password_confirmation" id="password_confirmation" class="form-control"
+    <div class="input-group input-group-flat">
+        <input type="password" name="password_confirmation" id="password_confirmation" class="form-control"
             placeholder="Ulangi Kata Sandi" required>
+        <span class="input-group-text px-2">
+            <a href="#" class="link-secondary toggle-password" data-target="password_confirmation"
+                title="Tampilkan sandi" data-bs-toggle="tooltip">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+                    stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                    <path d="M10.584 10.587a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+                    <path
+                        d="M9.363 5.365a9.466 9.466 0 0 1 2.637 -.365c4 0 7.333 2.333 10 7c-.778 1.361 -1.612 2.524 -2.503 3.488m-2.14 1.861c-1.631 1.1 -3.415 1.651 -5.357 1.651c-4 0 -7.333 -2.333 -10 -7c1.369 -2.395 2.913 -4.175 4.632 -5.341" />
+                    <path d="M3 3l18 18" />
+                </svg>
+            </a>
+        </span>
+    </div>
 </div>
 
 <div class="mb-3">
@@ -152,11 +167,11 @@ Registrasi <b>Himaprodi ITB Stikom Bali</b>
 </div>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
+    document.addEventListener('DOMContentLoaded', function() {
         const isStikomSelect = document.getElementById('is_stikom');
         const stikomFields = document.getElementById('stikom-fields-container');
         const nonStikomFields = document.getElementById('non-stikom-fields-container');
-        
+
         const instansiTypeSelect = document.getElementById('instansi_type');
         const sekolahContainer = document.getElementById('asal-sekolah-container');
         const kampusContainer = document.getElementById('asal-kampus-container');
@@ -170,7 +185,7 @@ Registrasi <b>Himaprodi ITB Stikom Bali</b>
 
         function toggleMainFields() {
             const val = isStikomSelect.value;
-            
+
             // Reset visibility
             stikomFields.style.display = 'none';
             nonStikomFields.style.display = 'none';
@@ -188,7 +203,7 @@ Registrasi <b>Himaprodi ITB Stikom Bali</b>
 
         function toggleInstansiDetail() {
             const type = instansiTypeSelect.value;
-            
+
             sekolahContainer.style.display = 'none';
             kampusContainer.style.display = 'none';
             sekolahIn.removeAttribute('required');

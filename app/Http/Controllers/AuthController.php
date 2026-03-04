@@ -3,11 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
-use App\Models\Member;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rules\Password;
 
 class AuthController extends Controller
 {
@@ -23,50 +23,8 @@ class AuthController extends Controller
         return view('admin.auth.login');
     }
 
-    // Proses login
+    // Proses login member
     public function login(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'email' => 'required|email',
-            'password' => 'required|min:8',
-        ], [
-            'email.required' => 'Email wajib diisi',
-            'email.email' => 'Format email tidak valid',
-            'password.required' => 'Kata sandi wajib diisi',
-            'password.min' => 'Kata sandi minimal 8 karakter',
-        ]);
-
-        if ($validator->fails()) {
-            return redirect()->back()
-                ->withErrors($validator)
-                ->withInput();
-        }
-
-        $email = $request->email;
-        $password = $request->password;
-        $remember = $request->has('remember');
-
-        // Cari user berdasarkan email
-        $user = User::where('email', $email)->first();
-
-        if ($user && Hash::check($password, $user->password)) {
-            // Pastikan yang login di halaman ini adalah member
-            if ($user->role !== 'member') {
-                return redirect()->back()->withErrors(['email' => 'Akun ini bukan member. Gunakan halaman login admin.'])->withInput();
-            }
-
-            Auth::login($user, $remember);
-            $request->session()->regenerate();
-            return redirect()->intended('/')->with('success', 'Login berhasil!');
-        }
-
-        return redirect()->back()
-            ->withErrors(['email' => 'Email atau kata sandi salah'])
-            ->withInput();
-    }
-
-    // Proses login admin
-    public function adminLogin(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'email' => 'required|email',
@@ -82,25 +40,47 @@ class AuthController extends Controller
             return redirect()->back()->withErrors($validator)->withInput();
         }
 
-        $email = $request->email;
-        $password = $request->password;
+        $credentials = $request->only('email', 'password');
         $remember = $request->has('remember');
 
-        // Cari user berdasarkan email
-        $user = User::where('email', $email)->first();
-
-        if ($user && Hash::check($password, $user->password)) {
-            // Pastikan yang login di halaman ini adalah admin
-            if ($user->role !== 'admin') {
-                return redirect()->back()->withErrors(['email' => 'Akun ini bukan admin. Gunakan halaman login member.'])->withInput();
+        if (Auth::attempt($credentials, $remember)) {
+            $user = Auth::user();
+            
+            // Proteksi: Hanya member yang bisa login lewat sini
+            if ($user->role !== 'member') {
+                Auth::logout();
+                return redirect()->back()->withErrors(['email' => 'Akun ini bukan member. Gunakan halaman login admin.'])->withInput();
             }
 
-            Auth::login($user, $remember);
             $request->session()->regenerate();
-            return redirect()->intended('/admin/dashboard')->with('success', 'Login berhasil!');
+            return redirect()->intended('/')->with('success', 'Login berhasil!');
         }
 
         return redirect()->back()->withErrors(['email' => 'Email atau kata sandi salah'])->withInput();
+    }
+
+    // Proses login admin
+    public function adminLogin(Request $request)
+    {
+        // ... (Logika login admin tetap sama, disesuaikan dengan role admin)
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|email',
+            'password' => 'required|min:8',
+        ]);
+
+        if ($validator->fails()) {
+            return redirect()->back()->withErrors($validator)->withInput();
+        }
+
+        if (Auth::attempt($request->only('email', 'password'), $request->has('remember'))) {
+            if (Auth::user()->role !== 'admin') {
+                Auth::logout();
+                return redirect()->back()->withErrors(['email' => 'Hanya Admin yang diizinkan masuk.'])->withInput();
+            }
+            return redirect()->intended('/admin/dashboard');
+        }
+
+        return redirect()->back()->withErrors(['email' => 'Kredensial admin tidak valid.'])->withInput();
     }
 
     // Menampilkan halaman registrasi
@@ -109,66 +89,68 @@ class AuthController extends Controller
         return view('auth.registration');
     }
 
-    // Proses registrasi
+    // Proses registrasi TERBARU (STIKOM vs NON-STIKOM)
     public function register(Request $request)
     {
+        // 1. Validasi Kondisional Berdasarkan Pilihan User
         $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
-            'nim' => 'required|string|max:255|unique:members,nim',
-            'email' => 'required|email|max:255|unique:members,email|unique:users,email',
-            'password' => 'required|string|min:8|confirmed',
-            'generation' => 'required|string|max:255',
-            'prodi' => 'required|string|max:255',
-            'telephone_number' => 'required|string|max:15',
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
+            'password' => ['required', 'confirmed', Password::defaults()],
+            'telephone_number' => ['required', 'string', 'max:15'],
+            'is_stikom' => ['required', 'boolean'],
+            
+            // Jika is_stikom = 1 (Ya)
+            'nim' => ['required_if:is_stikom,1', 'nullable', 'string', 'unique:users,nim'],
+            'generation' => ['required_if:is_stikom,1', 'nullable', 'string'],
+            'prodi' => ['required_if:is_stikom,1', 'nullable', 'string'],
+
+            // Jika is_stikom = 0 (Bukan)
+            'instansi_type' => ['required_if:is_stikom,0', 'nullable', 'in:SMA/SMK,Kuliah,Umum'],
+            'asal_sekolah' => ['required_if:instansi_type,SMA/SMK', 'nullable', 'string'],
+            'asal_kampus' => ['required_if:instansi_type,Kuliah', 'nullable', 'string'],
         ], [
-            'name.required' => 'Nama wajib diisi',
-            'nim.required' => 'NIM wajib diisi',
-            'nim.unique' => 'NIM sudah terdaftar',
-            'email.required' => 'Email wajib diisi',
-            'email.email' => 'Format email tidak valid',
-            'email.unique' => 'Email sudah terdaftar',
-            'password.required' => 'Kata sandi wajib diisi',
-            'password.min' => 'Kata sandi minimal 8 karakter',
-            'password.confirmed' => 'Konfirmasi kata sandi tidak sesuai',
-            'generation.required' => 'Angkatan wajib diisi',
-            'prodi.required' => 'Program studi wajib diisi',
-            'telephone_number.required' => 'Nomor telepon wajib diisi',
-            'telephone_number.max' => 'Nomor telepon maksimal 15 karakter',
+            'is_stikom.required' => 'Status mahasiswa wajib dipilih.',
+            'nim.required_if' => 'NIM wajib diisi bagi mahasiswa STIKOM.',
+            'nim.unique' => 'NIM ini sudah terdaftar.',
+            'instansi_type.required_if' => 'Silakan pilih tipe instansi Anda.',
+            'asal_sekolah.required_if' => 'Nama asal sekolah wajib diisi.',
+            'asal_kampus.required_if' => 'Nama asal kampus wajib diisi.',
+            'password.confirmed' => 'Konfirmasi kata sandi tidak cocok.',
         ]);
 
         if ($validator->fails()) {
-            return redirect()->back()
-                ->withErrors($validator)
-                ->withInput();
+            return redirect()->back()->withErrors($validator)->withInput();
         }
 
         try {
-            // Buat user terlebih dahulu
+            // 2. Simpan Data ke Tabel Users (Menghapus penggunaan tabel Member terpisah agar sinkron dengan model baru)
             $user = User::create([
                 'name' => $request->name,
                 'email' => $request->email,
                 'password' => Hash::make($request->password),
-                'role' => 'member',
-            ]);
-
-            // Buat member dengan relasi ke user
-            Member::create([
-                'user_id' => $user->id,
-                'nim' => $request->nim,
-                'email' => $request->email,
-                'prodi' => $request->prodi,
-                'generation' => $request->generation,
+                'role' => 'member', // Default role untuk registrasi publik
                 'telephone_number' => $request->telephone_number,
+                'is_stikom' => $request->is_stikom,
+
+                // Data Mahasiswa STIKOM
+                'nim' => $request->is_stikom == '1' ? $request->nim : null,
+                'generation' => $request->is_stikom == '1' ? $request->generation : null,
+                'prodi' => $request->is_stikom == '1' ? $request->prodi : null,
+
+                // Data Non-STIKOM
+                'instansi_type' => $request->is_stikom == '0' ? $request->instansi_type : null,
+                'asal_sekolah' => ($request->is_stikom == '0' && $request->instansi_type == 'SMA/SMK') ? $request->asal_sekolah : null,
+                'asal_kampus' => ($request->is_stikom == '0' && $request->instansi_type == 'Kuliah') ? $request->asal_kampus : null,
             ]);
 
-            // Auto login setelah registrasi
+            // 3. Login otomatis setelah berhasil daftar
             Auth::login($user);
 
-            return redirect()->route('landing.index')->with('success', 'Registrasi berhasil! Selamat datang di Himaprodi ITB STIKOM Bali.');
-        }
-        catch (\Exception $e) {
+            return redirect()->intended('/')->with('success', 'Registrasi berhasil! Selamat bergabung.');
+        } catch (\Exception $e) {
             return redirect()->back()
-                ->with('error', 'Terjadi kesalahan saat registrasi. Silakan coba lagi.')
+                ->with('error', 'Gagal memproses pendaftaran. Silakan coba lagi.')
                 ->withInput();
         }
     }
@@ -177,10 +159,9 @@ class AuthController extends Controller
     public function logout(Request $request)
     {
         Auth::logout();
-
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect()->route('login')->with('success', 'Logout berhasil!');
+        return redirect()->route('login')->with('success', 'Anda telah berhasil keluar.');
     }
 }
