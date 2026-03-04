@@ -11,7 +11,7 @@
                     <img src="{{ asset('image/landing/logo/INSTITUT_TEKNOLOGI_DAN_BISNIS_STIKOM_BALI.png') }}" alt="Logo STIKOM Bali"
                         class="w-32 h-32 lg:w-48 lg:h-48 object-contain">
                 
-                    <img src="{{ asset('image/landing/logo/HIMA.png') }}" alt="Logo Himaprodi TI"
+                    <img src="{{ asset('image/landing/logo/hima.png') }}" alt="Logo Himaprodi TI"
                         class="w-32 h-32 lg:w-48 lg:h-48 object-contain">
                     
                     <img src="{{ asset('image/landing/logo/KABINET_CAKRA_PRAGNYA_FULL-LEBAR.png') }}" alt="Logo Kabinet"

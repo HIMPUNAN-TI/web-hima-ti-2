@@ -21,9 +21,32 @@
             min-height: 100vh;
         }
 
+        /* Sticky Navigation Bar */
+        .sticky-nav {
+            position: sticky;
+            top: 0;
+            z-index: 1030;
+            background: rgba(var(--tblr-body-bg-rgb), 0.8);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border-bottom: 1px solid rgba(var(--tblr-border-color-rgb), 0.1);
+            padding: 0.5rem 0;
+            transition: all 0.3s ease;
+        }
+
+        /* Memaksa pembungkus halaman untuk mengambil tinggi penuh */
+        .page {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* Menengah kan konten secara vertikal di sisa ruang layar */
         .page-center {
+            flex: 1 0 auto;
+            display: flex;
+            align-items: center;
             animation: fadeIn 0.6s ease-out;
-            /* Efek masuk halus */
         }
 
         @keyframes fadeIn {
@@ -31,7 +54,6 @@
                 opacity: 0;
                 transform: translateY(10px);
             }
-
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -44,11 +66,54 @@
         }
 
         .footer-custom {
-            margin-top: auto;
             padding: 2rem 0;
             text-align: center;
             color: var(--tblr-secondary);
             font-size: 0.875rem;
+        }
+
+        /* Collapsible animations */
+        .collapsible {
+            display: none;
+            opacity: 0;
+        }
+
+        .collapsible.open {
+            display: block;
+            animation: slideInDown 0.4s ease-out forwards;
+        }
+
+        @keyframes slideInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-12px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeOut {
+            from {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            to {
+                opacity: 0;
+                transform: translateY(-12px);
+            }
+        }
+
+        .collapsible.closing {
+            animation: fadeOut 0.3s ease-in forwards;
+        }
+
+        .right-illustration img {
+            max-height: 60vh;
+            width: auto;
+            height: auto;
+            object-fit: contain;
         }
     </style>
 </head>
@@ -57,24 +122,26 @@
     <script src="{{ asset('tabler/dist/js/demo-theme.min.js') }}"></script>
 
     <div class="page">
+        <!-- Sticky Header for Back Button -->
+        <nav class="sticky-nav d-print-none">
+            <div class="container container-normal">
+                <div class="d-flex align-items-center">
+                    <a href="{{ url('/') }}" class="btn btn-ghost-secondary px-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-arrow-narrow-left me-1">
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                            <path d="M5 12l14 0" />
+                            <path d="M5 12l5 5" />
+                            <path d="M5 12l5 -5" />
+                        </svg>
+                        Beranda
+                    </a>
+                </div>
+            </div>
+        </nav>
+
+        <!-- page-center sekarang memiliki flex: 1 dan align-items-center -->
         <div class="page-center py-4">
             <div class="container container-normal">
-
-                {{-- Tombol Back --}}
-                <div class="row mb-4">
-                    <div class="col-12">
-                        <a href="{{ url('/') }}" class="btn btn-ghost-secondary px-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-arrow-narrow-left me-1">
-                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                <path d="M5 12l14 0" />
-                                <path d="M5 12l4 4" />
-                                <path d="M5 12l4 -4" />
-                            </svg>
-                            Beranda
-                        </a>
-                    </div>
-                </div>
-
                 <div class="row align-items-center g-4">
                     <div class="col-lg">
                         <div class="container-tight">
@@ -113,7 +180,7 @@
         </div>
 
         {{-- Footer Sederhana --}}
-        <footer class="footer-custom">
+        <footer class="footer-custom mt-auto">
             <div class="container">
                 <div class="row align-items-center justify-content-center">
                     <div class="col-auto">
