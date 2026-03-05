@@ -17,7 +17,7 @@
 {{-- 5. Isi Konten Form --}}
 @section('content')
     <div class="mb-3">
-        <label class="form-label">Surel (Email) <span class="required">*</span></label>
+        <label class="form-label">Email <span class="required">*</span></label>
         <input type="email" name="email" class="form-control @error('email') is-invalid @enderror" 
                placeholder="email@gmail.com" value="{{ old('email') }}" required>
         @error('email') <div class="invalid-feedback">{{ $message }}</div> @enderror
@@ -28,7 +28,7 @@
         <div class="input-group input-group-flat">
             <input type="password" name="password" id="password" class="form-control" 
                    placeholder="Kata Sandi Anda" required>
-            <span class="input-group-text">
+            <span class="input-group-text px-2 px-2">
                 {{-- Gunakan class 'toggle-password' dan data-target yang sesuai dengan ID input --}}
                 <a href="#" class="link-secondary toggle-password" data-target="password" title="Lihat sandi">
                     <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">

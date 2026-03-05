@@ -21,7 +21,10 @@ class LandingPageController extends Controller
                       ->take(8) // For 3x3 grid (9 total - 1 highlighted = 8)
                       ->get();
 
-        return view('landing.home.index', compact('highlightedEvent', 'events'));
+        // Sub-kompetisi Geteksi dari database (type=kompetisi)
+        $geteksiKompetisi = Event::where('type', 'kompetisi')->latest()->get();
+
+        return view('landing.home.index', compact('highlightedEvent', 'events', 'geteksiKompetisi'));
     }
 
     public function about()
@@ -42,9 +45,12 @@ class LandingPageController extends Controller
                       ->take(8) // For 3x3 grid (9 total - 1 highlighted = 8)
                       ->get();
 
+        // Sub-kompetisi Geteksi dari database (type=kompetisi)
+        $geteksiKompetisi = Event::where('type', 'kompetisi')->latest()->get();
+
         $title = 'Events';
 
-        return view('landing.events.index', compact('highlightedEvent', 'events', 'title'));
+        return view('landing.events.index', compact('highlightedEvent', 'events', 'geteksiKompetisi', 'title'));
     }
 
     public function eventDetail($id)
@@ -53,6 +59,10 @@ class LandingPageController extends Controller
 
         if ($event === null) {
             return redirect()->route('landing.events.index')->with('error', 'Event not found.');
+        }
+
+        if (Auth::check() && !Auth::user()->member) {
+            return redirect()->route('landing.index')->with('error', 'Silakan lengkapi profil Anda terlebih dahulu sebelum mendaftar event.');
         }
 
         $title = $event->name;
@@ -66,6 +76,10 @@ class LandingPageController extends Controller
 
         if ($event === null) {
             return redirect()->route('landing.events.index')->with('error', 'Event not found.');
+        }
+
+        if (Auth::check() && !Auth::user()->member) {
+            return redirect()->route('landing.index')->with('error', 'Silakan lengkapi profil Anda terlebih dahulu sebelum mendaftar event.');
         }
 
         $title = $event->name;
@@ -89,6 +103,10 @@ class LandingPageController extends Controller
 
         if (!$event) {
             return redirect()->route('landing.events.index')->with('error', 'Event not found.');
+        }
+
+        if (Auth::check() && !Auth::user()->member) {
+            return redirect()->back()->with('error', 'Silakan lengkapi profil member Anda terlebih dahulu.');
         }
 
         // Handle payment proof upload

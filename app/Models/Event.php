@@ -13,15 +13,17 @@ class Event extends Model
 
     protected $fillable = [
         'name',
+        'type',
+        'parent_event_name',
         'price',
         'date',
         'regist_start_date',
         'regist_end_date',
         'location',
-        'maps',
         'description',
         'poster',
         'certificate',
+        'maps',
     ];
 
     protected function casts(): array
@@ -43,6 +45,9 @@ class Event extends Model
 
     public function getCertificateUrlAttribute()
     {
-        return $this->certificate ? asset('image/events/certificates/' . $this->certificate) : null;
+        if ($this->certificate) {
+            return asset('image/events/certificates/' . $this->certificate);
+        }
+        return asset('image/events/certificates/default.png');
     }
 }

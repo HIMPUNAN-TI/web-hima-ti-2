@@ -16,6 +16,12 @@
         .panel-heading.note-toolbar {
             background-color: #f7f7f7;
         }
+        
+        .file-size-info {
+            font-size: 0.75rem;
+            margin-top: 0.25rem;
+            display: block;
+        }
     </style>
 @endpush
 
@@ -23,7 +29,7 @@
     <div class="container-xl">
         <div class="row row-deck row-cards">
             <div class="col-12">
-                <form class="card" method="POST" action="{{ route('events.store') }}" enctype="multipart/form-data">
+                <form class="card" method="POST" action="{{ route('events.store') }}" enctype="multipart/form-data" novalidate>
                     @csrf
                     <div class="card-header">
                         <h3 class="card-title">Formulir Tambah Event</h3>
@@ -56,6 +62,36 @@
                                         @enderror
                                     </div>
                                     <small class="form-hint">Masukkan 0 untuk event gratis</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- Tipe Event & Parent Event --}}
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label required">Tipe Event</label>
+                                    <select name="type" id="event-type"
+                                        class="form-select @error('type') is-invalid @enderror"
+                                        onchange="toggleParentEvent(this.value)">
+                                        <option value="general"   {{ old('type','general') == 'general'   ? 'selected' : '' }}>General (Event Biasa)</option>
+                                        <option value="kompetisi" {{ old('type') == 'kompetisi' ? 'selected' : '' }}>Kompetisi (Sub-Lomba Geteksi)</option>
+                                    </select>
+                                    @error('type')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                    <small class="form-hint">Pilih <strong>Kompetisi</strong> untuk sub-lomba Geteksi</small>
+                                </div>
+                            </div>
+                            <div class="col-md-6" id="parent-event-wrapper" style="display: {{ old('type') == 'kompetisi' ? 'block' : 'none' }}">
+                                <div class="mb-3">
+                                    <label class="form-label">Nama Event Induk (Geteksi)</label>
+                                    <input type="text" name="parent_event_name"
+                                        class="form-control @error('parent_event_name') is-invalid @enderror"
+                                        placeholder="Contoh: Geteksi VOL 3" value="{{ old('parent_event_name') }}">
+                                    @error('parent_event_name')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
                                 </div>
                             </div>
                         </div>
@@ -119,7 +155,7 @@
                             <div>
                                 <input type="url" name="maps"
                                     class="form-control @error('maps') is-invalid @enderror"
-                                    placeholder="https://maps.google.com/..." value="{{ old('maps') }}" required>
+                                    placeholder="https://maps.google.com/..." value="{{ old('maps') }}">
                                 @error('maps')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -143,15 +179,16 @@
                                     <div>
                                         <input type="file" name="poster" accept="image/*"
                                             class="form-control @error('poster') is-invalid @enderror"
-                                            onchange="previewImage(this, 'poster-preview')">
+                                            onchange="previewImage(this, 'poster-preview', 'poster-size-info')">
                                         @error('poster')
                                             <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
                                         <small class="form-hint">Format: JPG, JPEG, PNG. Maksimal 2MB</small>
+                                        <small id="poster-size-info" class="file-size-info text-secondary"></small>
                                     </div>
                                     <div class="mt-2">
                                         <img id="poster-preview" src="#" alt="Preview Poster"
-                                            style="display: none; max-width: 200px; max-height: 200px; border-radius: 0.375rem;">
+                                            style="display: none; max-width: 200px; max-height: 200px; border-radius: 0.375rem; border: 1px solid #ddd;">
                                     </div>
                                 </div>
                             </div>
@@ -161,15 +198,16 @@
                                     <div>
                                         <input type="file" name="certificate" accept="image/*"
                                             class="form-control @error('certificate') is-invalid @enderror"
-                                            onchange="previewImage(this, 'certificate-preview')">
+                                            onchange="previewImage(this, 'certificate-preview', 'certificate-size-info')">
                                         @error('certificate')
                                             <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
                                         <small class="form-hint">Format: JPG, JPEG, PNG. Maksimal 2MB</small>
+                                        <small id="certificate-size-info" class="file-size-info text-secondary"></small>
                                     </div>
                                     <div class="mt-2">
                                         <img id="certificate-preview" src="#" alt="Preview Sertifikat"
-                                            style="display: none; max-width: 200px; max-height: 200px; border-radius: 0.375rem;">
+                                            style="display: none; max-width: 200px; max-height: 200px; border-radius: 0.375rem; border: 1px solid #ddd;">
                                     </div>
                                 </div>
                             </div>
@@ -190,20 +228,68 @@
     <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.js"></script>
 
     <script>
-        function previewImage(input, previewId) {
+        /**
+         * Mengonversi bytes ke format yang mudah dibaca (KB/MB)
+         */
+        function formatBytes(bytes, decimals = 2) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const dm = decimals < 0 ? 0 : decimals;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+        }
+
+        /**
+         * Hide/Show Parent Event (Geteksi) dropdown based on selected Event Type
+         */
+        function toggleParentEvent(type) {
+            const wrapper = document.getElementById('parent-event-wrapper');
+            const input  = document.querySelector('[name="parent_event_name"]');
+            if (type === 'kompetisi') {
+                wrapper.style.display = 'block';
+            } else {
+                wrapper.style.display = 'none';
+                if (input) input.value = ""; // Reset value saat disembunyikan
+            }
+        }
+
+        /**
+         * Preview gambar dan validasi ukuran file di sisi client
+         */
+        function previewImage(input, previewId, sizeInfoId) {
             const preview = document.getElementById(previewId);
+            const sizeInfo = document.getElementById(sizeInfoId);
+            const maxSize = 2 * 1024 * 1024; // 2MB dalam bytes
 
             if (input.files && input.files[0]) {
-                const reader = new FileReader();
+                const file = input.files[0];
+                const fileSize = file.size;
+                const fileSizeFormatted = formatBytes(fileSize);
 
+                // Update info ukuran file
+                sizeInfo.innerHTML = `Ukuran file terpilih: <strong>${fileSizeFormatted}</strong>`;
+                
+                // Beri peringatan warna jika melebihi 2MB
+                if (fileSize > maxSize) {
+                    sizeInfo.classList.remove('text-secondary');
+                    sizeInfo.classList.add('text-danger');
+                    sizeInfo.innerHTML += ` <span class="badge bg-danger-lt">Terlalu Besar!</span>`;
+                } else {
+                    sizeInfo.classList.remove('text-danger');
+                    sizeInfo.classList.add('text-secondary');
+                }
+
+                // Load preview gambar
+                const reader = new FileReader();
                 reader.onload = function(e) {
                     preview.src = e.target.result;
                     preview.style.display = 'block';
                 }
-
-                reader.readAsDataURL(input.files[0]);
+                reader.readAsDataURL(file);
             } else {
                 preview.style.display = 'none';
+                sizeInfo.innerHTML = '';
             }
         }
 
@@ -255,22 +341,28 @@
 
             // Set minimum date to today for all date fields
             const today = new Date().toISOString().split('T')[0];
-            eventDate.min = today;
-            registStart.min = today;
-            registEnd.min = today;
+            if(eventDate) eventDate.min = today;
+            if(registStart) registStart.min = today;
+            if(registEnd) registEnd.min = today;
 
             // Update constraints when dates change
-            eventDate.addEventListener('change', function() {
-                registEnd.max = this.value;
-            });
+            if(eventDate) {
+                eventDate.addEventListener('change', function() {
+                    registEnd.max = this.value;
+                });
+            }
 
-            registStart.addEventListener('change', function() {
-                registEnd.min = this.value;
-            });
+            if(registStart) {
+                registStart.addEventListener('change', function() {
+                    registEnd.min = this.value;
+                });
+            }
 
-            registEnd.addEventListener('change', function() {
-                registStart.max = this.value;
-            });
+            if(registEnd) {
+                registEnd.addEventListener('change', function() {
+                    registStart.max = this.value;
+                });
+            }
         });
     </script>
 @endpush

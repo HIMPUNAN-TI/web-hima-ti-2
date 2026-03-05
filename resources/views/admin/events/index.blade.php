@@ -38,10 +38,11 @@
             z-index: 1;
         }
 
+        /* Styling Tombol Aksi Baru - Lebih Kontras & Jelas */
         .card-actions {
             position: absolute;
             top: 10px;
-            left: -5px;
+            left: 10px;
             z-index: 1;
         }
 
@@ -177,7 +178,7 @@
                             <div class="card event-card position-relative">
                                 <div class="card-actions">
                                     <div class="dropdown">
-                                        <a href="#" class="btn-action" data-bs-toggle="dropdown"
+                                        <a href="#" class="btn-action-custom" data-bs-toggle="dropdown"
                                             aria-expanded="false">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24"
                                                 height="24" viewBox="0 0 24 24" stroke-width="2"

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Hash;
 
 class UsersController extends Controller
 {
@@ -31,6 +32,18 @@ class UsersController extends Controller
             'email' => ['required', 'email', 'max:255', 'unique:users,email'],
             'password' => ['nullable', 'string', 'min:8'],
             'role' => ['required', Rule::in(['admin', 'member'])],
+            'telephone_number' => ['required', 'string', 'max:15'],
+            'is_stikom' => ['required', 'boolean'],
+            
+            // Validasi Kondisional berdasarkan is_stikom
+            'nim' => ['required_if:is_stikom,1', 'nullable', 'string', 'unique:users,nim'],
+            'generation' => ['required_if:is_stikom,1', 'nullable', 'string'],
+            'prodi' => ['required_if:is_stikom,1', 'nullable', 'string'],
+
+            // Validasi Kondisional berdasarkan instansi_type
+            'instansi_type' => ['required_if:is_stikom,0', 'nullable', 'in:SMA/SMK,Kuliah,Umum'],
+            'asal_sekolah' => ['required_if:instansi_type,SMA/SMK', 'nullable', 'string'],
+            'asal_kampus' => ['required_if:instansi_type,Kuliah', 'nullable', 'string'],
         ]);
 
         $password = $validated['password'] ?? null;
@@ -41,8 +54,20 @@ class UsersController extends Controller
         User::create([
             'name' => $validated['name'],
             'email' => $validated['email'],
-            'password' => $password,
+            'password' => Hash::make($password), // Di-hash agar bisa login lewat AuthController
             'role' => $validated['role'],
+            'telephone_number' => $validated['telephone_number'],
+            'is_stikom' => $validated['is_stikom'],
+            
+            // Data Mahasiswa STIKOM
+            'nim' => $validated['is_stikom'] == '1' ? $validated['nim'] : null,
+            'generation' => $validated['is_stikom'] == '1' ? $validated['generation'] : null,
+            'prodi' => $validated['is_stikom'] == '1' ? $validated['prodi'] : null,
+
+            // Data Non-STIKOM
+            'instansi_type' => $validated['is_stikom'] == '0' ? $validated['instansi_type'] : null,
+            'asal_sekolah' => ($validated['is_stikom'] == '0' && $validated['instansi_type'] == 'SMA/SMK') ? $validated['asal_sekolah'] : null,
+            'asal_kampus' => ($validated['is_stikom'] == '0' && $validated['instansi_type'] == 'Kuliah') ? $validated['asal_kampus'] : null,
         ]);
 
         return redirect()->route('users.index')->with('success', 'User berhasil dibuat.');
@@ -60,16 +85,34 @@ class UsersController extends Controller
             'email' => ['required', 'email', 'max:255', Rule::unique('users', 'email')->ignore($user->id)],
             'password' => ['nullable', 'string', 'min:8'],
             'role' => ['required', Rule::in(['admin', 'member'])],
+            'telephone_number' => ['required', 'string', 'max:15'],
+            'is_stikom' => ['required', 'boolean'],
+            
+            // Validasi Kondisional Update
+            'nim' => ['required_if:is_stikom,1', 'nullable', 'string', Rule::unique('users', 'nim')->ignore($user->id)],
+            'generation' => ['required_if:is_stikom,1', 'nullable', 'string'],
+            'prodi' => ['required_if:is_stikom,1', 'nullable', 'string'],
+            'instansi_type' => ['required_if:is_stikom,0', 'nullable', 'in:SMA/SMK,Kuliah,Umum'],
+            'asal_sekolah' => ['required_if:instansi_type,SMA/SMK', 'nullable', 'string'],
+            'asal_kampus' => ['required_if:instansi_type,Kuliah', 'nullable', 'string'],
         ]);
 
         $updateData = [
             'name' => $validated['name'],
             'email' => $validated['email'],
             'role' => $validated['role'],
+            'telephone_number' => $validated['telephone_number'],
+            'is_stikom' => $validated['is_stikom'],
+            'nim' => $validated['is_stikom'] == '1' ? $validated['nim'] : null,
+            'generation' => $validated['is_stikom'] == '1' ? $validated['generation'] : null,
+            'prodi' => $validated['is_stikom'] == '1' ? $validated['prodi'] : null,
+            'instansi_type' => $validated['is_stikom'] == '0' ? $validated['instansi_type'] : null,
+            'asal_sekolah' => ($validated['is_stikom'] == '0' && $validated['instansi_type'] == 'SMA/SMK') ? $validated['asal_sekolah'] : null,
+            'asal_kampus' => ($validated['is_stikom'] == '0' && $validated['instansi_type'] == 'Kuliah') ? $validated['asal_kampus'] : null,
         ];
 
         if (!empty($validated['password'])) {
-            $updateData['password'] = $validated['password']; // Password disimpan sebagai plain text
+            $updateData['password'] = Hash::make($validated['password']);
         }
 
         $user->update($updateData);
@@ -83,5 +126,3 @@ class UsersController extends Controller
         return redirect()->route('users.index')->with('success', 'User berhasil dihapus.');
     }
 }
-
-
