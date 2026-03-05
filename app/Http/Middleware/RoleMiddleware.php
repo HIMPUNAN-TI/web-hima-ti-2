@@ -20,7 +20,7 @@ class RoleMiddleware
             // Redirect to their own dashboard
             return $user->role === 'admin'
                 ? redirect('/admin/dashboard')
-                : redirect('/')->with('error', 'Anda tidak memiliki akses ke halaman Admin.');;
+                : redirect('/')->with('error', 'Anda tidak memiliki akses ke halaman Admin.');
         }
 
         return $next($request);

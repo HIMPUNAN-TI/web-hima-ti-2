@@ -55,7 +55,7 @@ class LandingPageController extends Controller
             return redirect()->route('landing.events.index')->with('error', 'Event not found.');
         }
 
-        if (\Illuminate\Support\Facades\Auth::check() && !\Illuminate\Support\Facades\Auth::user()->member) {
+        if (Auth::check() && !Auth::user()->member) {
             return redirect()->route('landing.index')->with('error', 'Silakan lengkapi profil Anda terlebih dahulu sebelum mendaftar event.');
         }
 
@@ -72,7 +72,7 @@ class LandingPageController extends Controller
             return redirect()->route('landing.events.index')->with('error', 'Event not found.');
         }
 
-        if (\Illuminate\Support\Facades\Auth::check() && !\Illuminate\Support\Facades\Auth::user()->member) {
+        if (Auth::check() && !Auth::user()->member) {
             return redirect()->route('landing.index')->with('error', 'Silakan lengkapi profil Anda terlebih dahulu sebelum mendaftar event.');
         }
 

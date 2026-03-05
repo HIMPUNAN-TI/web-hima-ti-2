@@ -38,11 +38,36 @@
             z-index: 1;
         }
 
+        /* Styling Tombol Aksi Baru - Lebih Kontras & Jelas */
         .card-actions {
             position: absolute;
-            top: 10px;
-            left: 10px;
-            z-index: 1;
+            top: 14px;
+            /* left: 5px; */
+            z-index: 10;
+        }
+
+        .btn-action-custom {
+            background: rgba(255, 255, 255, 0.3); /* Putih semi-transparan */
+            backdrop-filter: blur(8px); /* Efek kaca */
+            -webkit-backdrop-filter: blur(8px);
+            color: #1d273b;
+            width: 34px;
+            height: 34px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: all 0.2s ease;
+            text-decoration: none !important;
+        }
+
+        .btn-action-custom:hover {
+            background: rgba(255, 255, 255, 1);
+            color: #206bc4;
+            transform: scale(1.05);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
         }
 
         .event-description {
@@ -177,7 +202,7 @@
                             <div class="card event-card position-relative">
                                 <div class="card-actions">
                                     <div class="dropdown">
-                                        <a href="#" class="btn-action" data-bs-toggle="dropdown"
+                                        <a href="#" class="btn-action-custom" data-bs-toggle="dropdown"
                                             aria-expanded="false">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24"
                                                 height="24" viewBox="0 0 24 24" stroke-width="2"
