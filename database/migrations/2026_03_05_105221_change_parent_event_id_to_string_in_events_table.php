@@ -12,11 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('events', function (Blueprint $table) {
-            // Drop foreign key & column lama
-            $table->dropForeign(['parent_event_id']);
-            $table->dropColumn('parent_event_id');
-            // Tambah column baru sebagai string
-            $table->string('parent_event_name')->nullable()->after('type');
+            $table->string('parent_event_name')->nullable();
         });
     }
 
@@ -27,8 +23,6 @@ return new class extends Migration
     {
         Schema::table('events', function (Blueprint $table) {
             $table->dropColumn('parent_event_name');
-            $table->unsignedBigInteger('parent_event_id')->nullable()->after('type');
-            $table->foreign('parent_event_id')->references('id')->on('events')->onDelete('set null');
         });
     }
 };
