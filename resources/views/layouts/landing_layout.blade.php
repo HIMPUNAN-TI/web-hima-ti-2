@@ -105,7 +105,7 @@
                         </svg>
                         <span>{{ Auth::user()->name }}</span>
                     </div>
-                    <ul tabindex="0" class="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow mt-4">
+                    <ul tabindex="0" class="dropdown-content menu bg-base-100 rounded-box z-1 w-52 p-2 shadow mt-4">
                         <li>
                             <a href="{{ route('landing.profile.my-events') }}">
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
