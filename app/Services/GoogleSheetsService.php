@@ -90,4 +90,76 @@ class GoogleSheetsService
     {
         $this->service->spreadsheets_values->clear($spreadsheetId, $range, new \Google\Service\Sheets\ClearValuesRequest());
     }
+
+    /**
+     * Membuat tab/sheet baru pada Google Sheet
+     *
+     * @param string $spreadsheetId
+     * @param string $sheetTitle
+     * @return void
+     */
+    public function addSheet(string $spreadsheetId, string $sheetTitle): void
+    {
+        // Pengecekan apakah sheet sudah ada
+        $spreadsheet = $this->service->spreadsheets->get($spreadsheetId);
+        $sheets = $spreadsheet->getSheets();
+        
+        foreach ($sheets as $sheet) {
+            if ($sheet->getProperties()->getTitle() === $sheetTitle) {
+                return; // Sheet sudah ada
+            }
+        }
+
+        $body = new \Google\Service\Sheets\BatchUpdateSpreadsheetRequest([
+            'requests' => [
+                'addSheet' => [
+                    'properties' => [
+                        'title' => $sheetTitle
+                    ]
+                ]
+            ]
+        ]);
+
+        $this->service->spreadsheets->batchUpdate($spreadsheetId, $body);
+
+        // Langsung inisialisasi header setelah dibuat
+        $this->updateValues($spreadsheetId, $sheetTitle . '!A1:J1', [[
+            'ID', 'Event ID', 'Nama Event', 'Nama Peserta', 'Email', 'NIM',
+            'No. Telepon', 'Status', 'Bukti Bayar', 'Didaftarkan Pada',
+        ]]);
+    }
+
+    /**
+     * Mendapatkan daftar semua sheet di dalam spreadsheet
+     *
+     * @param string $spreadsheetId
+     * @return array
+     */
+    public function getSheetsList(string $spreadsheetId): array
+    {
+        $spreadsheet = $this->service->spreadsheets->get($spreadsheetId);
+        return $spreadsheet->getSheets();
+    }
+
+    /**
+     * Menghapus sheet berdasarkan ID sheet
+     *
+     * @param string $spreadsheetId
+     * @param int $sheetId
+     * @return void
+     */
+    public function deleteSheet(string $spreadsheetId, int $sheetId): void
+    {
+        $body = new \Google\Service\Sheets\BatchUpdateSpreadsheetRequest([
+            'requests' => [
+                [
+                    'deleteSheet' => [
+                        'sheetId' => $sheetId
+                    ]
+                ]
+            ]
+        ]);
+
+        $this->service->spreadsheets->batchUpdate($spreadsheetId, $body);
+    }
 }

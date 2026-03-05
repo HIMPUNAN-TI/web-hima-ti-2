@@ -166,6 +166,14 @@ class EventController extends Controller
         // Sync ke Google Sheets (full re-sync setelah create)
         $this->fullSyncToSheets();
 
+        // Buat tab khusus untuk event ini
+        try {
+            $sheetTitle = $event->name . ' Pendaftaran';
+            $this->sheets->addSheet($this->spreadsheetId, $sheetTitle);
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Gagal membuat tab Google Sheets untuk event baru: ' . $e->getMessage());
+        }
+
         return redirect()->route('events.index')->with('success', 'Event berhasil dibuat.');
     }
 
@@ -291,6 +299,20 @@ class EventController extends Controller
             
             if ($event->certificate && file_exists(public_path('image/events/certificates/' . $event->certificate))) {
                 unlink(public_path('image/events/certificates/' . $event->certificate));
+            }
+
+            // Hapus tab Google Sheet
+            try {
+                $sheetTitle = $event->name . ' Pendaftaran';
+                $sheetsList = $this->sheets->getSheetsList($this->spreadsheetId);
+                foreach ($sheetsList as $sheet) {
+                    if ($sheet->getProperties()->getTitle() === $sheetTitle) {
+                        $this->sheets->deleteSheet($this->spreadsheetId, $sheet->getProperties()->getSheetId());
+                        break;
+                    }
+                }
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::error('Gagal menghapus tab Google Sheets untuk event yang dihapus: ' . $e->getMessage());
             }
 
             $eventId = $event->id;

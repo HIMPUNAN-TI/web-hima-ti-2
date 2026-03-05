@@ -28,39 +28,45 @@ class LandingPageController extends Controller
     protected function fullSyncRegistrationsToSheets(): void
     {
         try {
-            // Pastikan header ada di baris 1
-            $this->sheets->updateValues($this->spreadsheetId, $this->sheetName . '!A1:I1', [[
-                'ID', 'Nama Event', 'Nama Peserta', 'Email', 'NIM',
-                'No. Telepon', 'Status', 'Bukti Bayar', 'Didaftarkan Pada',
-            ]]);
-
-            // Clear data lama (baris 2 ke bawah)
-            $this->sheets->clearValues($this->spreadsheetId, $this->sheetName . '!A2:I9999');
-
             $payments = Payment::with(['event', 'member'])->orderBy('id')->get();
 
             if ($payments->isEmpty()) {
                 return;
             }
 
-            $rows = $payments->map(fn(Payment $p) => [
-                $p->id,
-                $p->event?->name ?? '-',
-                $p->name,
-                $p->email,
-                $p->nim,
-                $p->telephone_number,
-                $p->status,
-                $p->proof_of_payment ?? '-',
-                $p->created_at?->format('Y-m-d H:i:s'),
-            ])->values()->toArray();
+            $paymentsByEvent = $payments->groupBy('event_id');
 
-            $endRow = count($rows) + 1;
-            $this->sheets->updateValues(
-                $this->spreadsheetId,
-                $this->sheetName . '!A2:I' . $endRow,
-                $rows
-            );
+            foreach ($paymentsByEvent as $eventId => $eventPayments) {
+                $event = $eventPayments->first()->event;
+                $eventNameParam = $event ? $event->name : 'Unknown';
+                $sheetTitle = $eventNameParam . ' Pendaftaran';
+
+                // Pastikan tab event ada, jika tidak tambahkan
+                $this->sheets->addSheet($this->spreadsheetId, $sheetTitle);
+
+                // Clear data lama (baris 2 ke bawah)
+                $this->sheets->clearValues($this->spreadsheetId, $sheetTitle . '!A2:J9999');
+
+                $rows = $eventPayments->map(fn(Payment $p) => [
+                    $p->id,
+                    $p->event_id,
+                    $p->event?->name ?? '-',
+                    $p->name,
+                    $p->email,
+                    $p->nim,
+                    $p->telephone_number,
+                    $p->status,
+                    $p->proof_of_payment ? asset('image/proof_of_payments/' . $p->proof_of_payment) : '-',
+                    $p->created_at?->format('Y-m-d H:i:s'),
+                ])->values()->toArray();
+
+                $endRow = count($rows) + 1;
+                $this->sheets->updateValues(
+                    $this->spreadsheetId,
+                    $sheetTitle . '!A2:J' . $endRow,
+                    $rows
+                );
+            }
         } catch (\Throwable $e) {
             Log::error('Google Sheets registrasi sync failed: ' . $e->getMessage());
         }
@@ -149,10 +155,27 @@ class LandingPageController extends Controller
             'event_id' => 'required|exists:events,id',
             'member_id' => 'required|exists:members,id',
             'name' => 'required|string|max:255',
-            'email' => 'required|email|max:255',
-            'nim' => 'required|string|max:50',
+            'email' => [
+                'required',
+                'email',
+                'max:255',
+                \Illuminate\Validation\Rule::unique('payments')->where(function ($query) use ($request) {
+                    return $query->where('event_id', $request->event_id);
+                }),
+            ],
+            'nim' => [
+                'required',
+                'string',
+                'max:50',
+                \Illuminate\Validation\Rule::unique('payments')->where(function ($query) use ($request) {
+                    return $query->where('event_id', $request->event_id);
+                }),
+            ],
             'phone' => 'required|string|max:20',
             'payment_proof' => 'required|file|mimes:jpg,jpeg,png,pdf|max:2048',
+        ], [
+            'email.unique' => 'Email ini sudah terdaftar pada event ini.',
+            'nim.unique' => 'NIM ini sudah terdaftar pada event ini.',
         ]);
 
         $event = Event::find($id);
@@ -189,6 +212,9 @@ class LandingPageController extends Controller
             'status' => Payment::STATUS_PENDING,
             'proof_of_payment' => $paymentProofName,
         ]);
+
+        // Sync ke Google Sheets secara real-time
+        $this->fullSyncRegistrationsToSheets();
 
         return redirect()->route('landing.events.detail', $id)->with('success', 'Registrasi berhasil!. Silahkan tunggu konfirmasi dari panitia.');
     }
