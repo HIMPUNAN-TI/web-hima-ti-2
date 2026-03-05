@@ -22,83 +22,47 @@ class EventController extends Controller
     }
 
     /**
-     * Sync satu event ke Google Sheets.
-     * Cari baris berdasarkan ID di kolom A, lalu update.
-     * Jika belum ada, append baris baru.
+     * Full re-sync semua event ke Google Sheets.
+     * Clear semua data lama, lalu tulis ulang semua event dari DB urut by ID.
+     * Pendekatan ini memastikan urutan selalu konsisten dan tidak ada baris bolong.
      */
-    protected function syncEventToSheets(Event $event): void
+    protected function fullSyncToSheets(): void
     {
         try {
-            $row = [
-                $event->id,
-                $event->name,
-                (float) $event->price,
-                $event->date?->format('Y-m-d'),
-                $event->regist_start_date?->format('Y-m-d'),
-                $event->regist_end_date?->format('Y-m-d'),
-                $event->location,
-                $event->description,
-                $event->maps,
-                $event->created_at?->format('Y-m-d H:i:s'),
-            ];
+            // 1. Kosongkan seluruh data (baris 2 ke bawah, baris 1 = header)
+            $this->sheets->clearValues($this->spreadsheetId, $this->sheetName . '!A2:J9999');
 
-            // Baca semua data untuk cari baris dengan ID yang sama
-            $existing = $this->sheets->getValues(
-                $this->spreadsheetId,
-                $this->sheetName . '!A:A'
-            );
+            // 2. Ambil semua event dari DB, urut by ID ascending
+            $events = Event::orderBy('id')->get();
 
-            $rowIndex = null;
-            foreach ($existing as $i => $cell) {
-                if (isset($cell[0]) && (string)$cell[0] === (string)$event->id) {
-                    $rowIndex = $i + 1; // Google Sheets 1-indexed
-                    break;
-                }
+            if ($events->isEmpty()) {
+                return;
             }
 
-            if ($rowIndex) {
-                // Update baris yang sudah ada
-                $range = $this->sheetName . '!A' . $rowIndex . ':J' . $rowIndex;
-                $this->sheets->updateValues($this->spreadsheetId, $range, [$row]);
-            } else {
-                // Belum ada, tambah baris baru
-                $this->sheets->appendValues(
-                    $this->spreadsheetId,
-                    $this->sheetName . '!A:J',
-                    [$row]
-                );
-            }
+            // 3. Build rows
+            $rows = $events->map(fn(Event $e) => [
+                $e->id,
+                $e->name,
+                (float) $e->price,
+                $e->date?->format('Y-m-d'),
+                $e->regist_start_date?->format('Y-m-d'),
+                $e->regist_end_date?->format('Y-m-d'),
+                $e->location,
+                strip_tags($e->description),
+                $e->maps,
+                $e->created_at?->format('Y-m-d H:i:s'),
+            ])->values()->toArray();
+
+            // 4. Tulis semua sekaligus mulai dari A2
+            $endRow = count($rows) + 1;
+            $range  = $this->sheetName . '!A2:J' . $endRow;
+            $this->sheets->updateValues($this->spreadsheetId, $range, $rows);
+
         } catch (\Throwable $e) {
-            Log::error('Google Sheets sync failed: ' . $e->getMessage());
+            Log::error('Google Sheets full sync failed: ' . $e->getMessage());
         }
     }
 
-    /**
-     * Hapus baris event dari Google Sheets berdasarkan ID.
-     * (Isi sel jadi kosong — clear row)
-     */
-    protected function removeEventFromSheets(int $eventId): void
-    {
-        try {
-            $existing = $this->sheets->getValues(
-                $this->spreadsheetId,
-                $this->sheetName . '!A:A'
-            );
-
-            foreach ($existing as $i => $cell) {
-                if (isset($cell[0]) && (string)$cell[0] === (string)$eventId) {
-                    $rowIndex = $i + 1;
-                    $this->sheets->clearValues(
-                        $this->spreadsheetId,
-                        $this->sheetName . '!A' . $rowIndex . ':J' . $rowIndex
-                    );
-                    break;
-                }
-            }
-        } catch (\Exception $e) {
-            Log::error('Google Sheets delete sync failed: ' . $e->getMessage());
-        }
-    }
     /**
      * Display a listing of the resource.
      */
@@ -199,8 +163,8 @@ class EventController extends Controller
             return redirect()->back()->with('error', 'Terjadi kesalahan saat membuat event: ' . $e->getMessage())->withInput();
         }
 
-        // Sync ke Google Sheets (terpisah dari try-catch utama agar tidak menggagalkan simpan event)
-        $this->syncEventToSheets($event->fresh());
+        // Sync ke Google Sheets (full re-sync setelah create)
+        $this->fullSyncToSheets();
 
         return redirect()->route('events.index')->with('success', 'Event berhasil dibuat.');
     }
@@ -308,8 +272,8 @@ class EventController extends Controller
             return redirect()->back()->with('error', 'Terjadi kesalahan saat memperbarui event: ' . $e->getMessage())->withInput();
         }
 
-        // Sync ke Google Sheets (terpisah dari try-catch utama agar tidak menggagalkan update event)
-        $this->syncEventToSheets($event->fresh());
+        // Sync ke Google Sheets (full re-sync setelah update)
+        $this->fullSyncToSheets();
 
         return redirect()->route('events.index')->with('success', 'Event berhasil diperbarui.');
     }
@@ -332,8 +296,8 @@ class EventController extends Controller
             $eventId = $event->id;
             $event->delete();
 
-            // Hapus dari Google Sheets
-            $this->removeEventFromSheets($eventId);
+            // Full re-sync ke Google Sheets setelah hapus
+            $this->fullSyncToSheets();
 
             return redirect()->route('events.index')->with('success', 'Event berhasil dihapus.');
         } catch (\Exception $e) {

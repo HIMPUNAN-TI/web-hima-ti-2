@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Member;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -144,7 +145,17 @@ class AuthController extends Controller
                 'asal_kampus' => ($request->is_stikom == '0' && $request->instansi_type == 'Kuliah') ? $request->asal_kampus : null,
             ]);
 
-            // 3. Login otomatis setelah berhasil daftar
+            // 3. Buat record di tabel Members secara otomatis
+            Member::create([
+                'user_id'          => $user->id,
+                'nim'              => $user->nim ?? ('non-' . $user->id),
+                'email'            => $user->email,
+                'telephone_number' => $user->telephone_number ?? '',
+                'prodi'            => $user->prodi ?? ($user->instansi_type ?? 'Umum'),
+                'generation'       => $user->generation ?? '-',
+            ]);
+
+            // 4. Login otomatis setelah berhasil daftar
             Auth::login($user);
 
             return redirect()->intended('/')->with('success', 'Registrasi berhasil! Selamat bergabung.');

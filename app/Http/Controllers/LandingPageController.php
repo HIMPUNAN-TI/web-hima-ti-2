@@ -5,11 +5,67 @@ namespace App\Http\Controllers;
 use App\Models\Contact;
 use App\Models\Event;
 use App\Models\Payment;
+use App\Services\GoogleSheetsService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class LandingPageController extends Controller
 {
+    protected GoogleSheetsService $sheets;
+    protected string $spreadsheetId;
+    protected string $sheetName = 'Pendaftaran';
+
+    public function __construct(GoogleSheetsService $sheets)
+    {
+        $this->sheets = $sheets;
+        $this->spreadsheetId = config('services.google.spreadsheet_id');
+    }
+
+    /**
+     * Full re-sync semua data registrasi ke sheet 'Registrasi'.
+     */
+    protected function fullSyncRegistrationsToSheets(): void
+    {
+        try {
+            // Pastikan header ada di baris 1
+            $this->sheets->updateValues($this->spreadsheetId, $this->sheetName . '!A1:I1', [[
+                'ID', 'Nama Event', 'Nama Peserta', 'Email', 'NIM',
+                'No. Telepon', 'Status', 'Bukti Bayar', 'Didaftarkan Pada',
+            ]]);
+
+            // Clear data lama (baris 2 ke bawah)
+            $this->sheets->clearValues($this->spreadsheetId, $this->sheetName . '!A2:I9999');
+
+            $payments = Payment::with(['event', 'member'])->orderBy('id')->get();
+
+            if ($payments->isEmpty()) {
+                return;
+            }
+
+            $rows = $payments->map(fn(Payment $p) => [
+                $p->id,
+                $p->event?->name ?? '-',
+                $p->name,
+                $p->email,
+                $p->nim,
+                $p->telephone_number,
+                $p->status,
+                $p->proof_of_payment ?? '-',
+                $p->created_at?->format('Y-m-d H:i:s'),
+            ])->values()->toArray();
+
+            $endRow = count($rows) + 1;
+            $this->sheets->updateValues(
+                $this->spreadsheetId,
+                $this->sheetName . '!A2:I' . $endRow,
+                $rows
+            );
+        } catch (\Throwable $e) {
+            Log::error('Google Sheets registrasi sync failed: ' . $e->getMessage());
+        }
+    }
+
     public function index()
     {
         // Get highlighted event (most recent or featured)

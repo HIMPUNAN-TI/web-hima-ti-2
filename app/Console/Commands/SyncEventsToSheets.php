@@ -38,13 +38,18 @@ class SyncEventsToSheets extends Command
             $this->info('✅ Header berhasil ditambahkan di baris 1.');
         }
 
-        $events = Event::all();
+        $events = Event::orderBy('id')->get();
 
         if ($events->isEmpty()) {
             $this->warn('Tidak ada data event di database.');
             return;
         }
 
+        // 1. Clear semua data (baris 2 ke bawah)
+        $this->sheets->clearValues($spreadsheetId, $sheetName . '!A2:J9999');
+        $this->info('🗑️  Data lama di spreadsheet telah dihapus.');
+
+        // 2. Build rows (strip HTML dari deskripsi)
         $rows = $events->map(fn(Event $e) => [
             $e->id,
             $e->name,
@@ -53,18 +58,16 @@ class SyncEventsToSheets extends Command
             $e->regist_start_date?->format('Y-m-d'),
             $e->regist_end_date?->format('Y-m-d'),
             $e->location,
-            $e->description,
+            strip_tags($e->description),
             $e->maps,
             $e->created_at?->format('Y-m-d H:i:s'),
         ])->values()->toArray();
 
-        // Tulis mulai dari A2 (setelah header)
-        $endCol   = 'J';
-        $endRow   = count($rows) + 1;
-        $range    = $sheetName . '!A2:' . $endCol . $endRow;
-
+        // 3. Tulis ulang semua event mulai dari A2, urut by ID
+        $endRow = count($rows) + 1;
+        $range  = $sheetName . '!A2:J' . $endRow;
         $this->sheets->updateValues($spreadsheetId, $range, $rows);
 
-        $this->info("✅ Berhasil sync {$events->count()} event ke Google Sheets.");
+        $this->info("✅ Berhasil sync {$events->count()} event ke Google Sheets (urut by ID).");
     }
 }
