@@ -128,6 +128,8 @@ class EventController extends Controller
     {
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
+            'type' => ['required', 'string', 'in:general,geteksi,kompetisi,famgath'],
+            'parent_event_name' => ['nullable', 'string', 'max:255'],
             'price' => ['required', 'numeric', 'min:0'],
             'date' => ['required', 'date', 'after_or_equal:today'],
             'regist_start_date' => ['required', 'date', 'before_or_equal:regist_end_date'],
@@ -139,6 +141,8 @@ class EventController extends Controller
             'maps' => ['required', 'url'],
         ], [
             'name.required' => 'Nama event wajib diisi',
+            'type.required' => 'Tipe event wajib dipilih',
+            'type.in'       => 'Tipe event tidak valid',
             'price.required' => 'Harga wajib diisi',
             'price.numeric' => 'Harga harus berupa angka',
             'price.min' => 'Harga tidak boleh negatif',
@@ -161,8 +165,10 @@ class EventController extends Controller
 
         try {
             $eventData = [
-                'name' => $validated['name'],
-                'price' => $validated['price'],
+                'name'            => $validated['name'],
+                'type'            => $validated['type'],
+                'parent_event_name' => $validated['parent_event_name'] ?? null,
+                'price'           => $validated['price'],
                 'date' => $validated['date'],
                 'regist_start_date' => $validated['regist_start_date'],
                 'regist_end_date' => $validated['regist_end_date'],
@@ -222,6 +228,8 @@ class EventController extends Controller
     {
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
+            'type' => ['required', 'string', 'in:general,geteksi,kompetisi,famgath'],
+            'parent_event_name' => ['nullable', 'string', 'max:255'],
             'price' => ['required', 'numeric', 'min:0'],
             'date' => ['required', 'date'],
             'regist_start_date' => ['required', 'date', 'before_or_equal:regist_end_date'],
@@ -233,6 +241,8 @@ class EventController extends Controller
             'maps' => ['required', 'url'],
         ], [
             'name.required' => 'Nama event wajib diisi',
+            'type.required' => 'Tipe event wajib dipilih',
+            'type.in'       => 'Tipe event tidak valid',
             'price.required' => 'Harga wajib diisi',
             'price.numeric' => 'Harga harus berupa angka',
             'price.min' => 'Harga tidak boleh negatif',
@@ -254,8 +264,10 @@ class EventController extends Controller
 
         try {
             $eventData = [
-                'name' => $validated['name'],
-                'price' => $validated['price'],
+                'name'            => $validated['name'],
+                'type'            => $validated['type'],
+                'parent_event_name' => $validated['parent_event_name'] ?? null,
+                'price'           => $validated['price'],
                 'date' => $validated['date'],
                 'regist_start_date' => $validated['regist_start_date'],
                 'regist_end_date' => $validated['regist_end_date'],

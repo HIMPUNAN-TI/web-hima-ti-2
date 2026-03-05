@@ -66,6 +66,36 @@
                             </div>
                         </div>
 
+                        {{-- Tipe Event & Parent Event --}}
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label required">Tipe Event</label>
+                                    <select name="type" id="event-type"
+                                        class="form-select @error('type') is-invalid @enderror"
+                                        onchange="toggleParentEvent(this.value)">
+                                        <option value="general"   {{ old('type','general') == 'general'   ? 'selected' : '' }}>General (Event Biasa)</option>
+                                        <option value="kompetisi" {{ old('type') == 'kompetisi' ? 'selected' : '' }}>Kompetisi (Sub-Lomba Geteksi)</option>
+                                    </select>
+                                    @error('type')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                    <small class="form-hint">Pilih <strong>Kompetisi</strong> untuk sub-lomba Geteksi</small>
+                                </div>
+                            </div>
+                            <div class="col-md-6" id="parent-event-wrapper" style="display: {{ old('type') == 'kompetisi' ? 'block' : 'none' }}">
+                                <div class="mb-3">
+                                    <label class="form-label">Nama Event Induk (Geteksi)</label>
+                                    <input type="text" name="parent_event_name"
+                                        class="form-control @error('parent_event_name') is-invalid @enderror"
+                                        placeholder="Contoh: Geteksi VOL 3" value="{{ old('parent_event_name') }}">
+                                    @error('parent_event_name')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="row">
                             <div class="col-md-4">
                                 <div class="mb-3">
@@ -208,6 +238,20 @@
             const sizes = ['Bytes', 'KB', 'MB', 'GB'];
             const i = Math.floor(Math.log(bytes) / Math.log(k));
             return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+        }
+
+        /**
+         * Hide/Show Parent Event (Geteksi) dropdown based on selected Event Type
+         */
+        function toggleParentEvent(type) {
+            const wrapper = document.getElementById('parent-event-wrapper');
+            const input  = document.querySelector('[name="parent_event_name"]');
+            if (type === 'kompetisi') {
+                wrapper.style.display = 'block';
+            } else {
+                wrapper.style.display = 'none';
+                if (input) input.value = ""; // Reset value saat disembunyikan
+            }
         }
 
         /**

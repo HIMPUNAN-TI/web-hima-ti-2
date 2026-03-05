@@ -21,7 +21,10 @@ class LandingPageController extends Controller
                       ->take(8) // For 3x3 grid (9 total - 1 highlighted = 8)
                       ->get();
 
-        return view('landing.home.index', compact('highlightedEvent', 'events'));
+        // Sub-kompetisi Geteksi dari database (type=kompetisi)
+        $geteksiKompetisi = Event::where('type', 'kompetisi')->latest()->get();
+
+        return view('landing.home.index', compact('highlightedEvent', 'events', 'geteksiKompetisi'));
     }
 
     public function about()
@@ -42,9 +45,12 @@ class LandingPageController extends Controller
                       ->take(8) // For 3x3 grid (9 total - 1 highlighted = 8)
                       ->get();
 
+        // Sub-kompetisi Geteksi dari database (type=kompetisi)
+        $geteksiKompetisi = Event::where('type', 'kompetisi')->latest()->get();
+
         $title = 'Events';
 
-        return view('landing.events.index', compact('highlightedEvent', 'events', 'title'));
+        return view('landing.events.index', compact('highlightedEvent', 'events', 'geteksiKompetisi', 'title'));
     }
 
     public function eventDetail($id)

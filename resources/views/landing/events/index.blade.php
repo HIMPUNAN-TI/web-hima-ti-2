@@ -56,6 +56,7 @@
                 </div>
             </div>
 
+            <!-- KOMPETISI GETEKSI -->
             <div class="mb-24"> 
                 <div class="flex items-center justify-between mb-10">
                     <div>
@@ -63,61 +64,60 @@
                         <p class="text-gray-500 text-base mt-1">Pilih kategori lomba yang ingin Anda ikuti</p>
                     </div>
                     <span class="bg-primary/10 text-primary px-5 py-1.5 rounded-full text-sm font-bold shadow-sm">
-                        2 Lomba Tersedia
+                        {{ $geteksiKompetisi->count() }} Lomba Tersedia
                     </span>
                 </div>
 
-                <div class="flex flex-wrap justify-center gap-10">
-                    
-                    <div class="bg-white rounded-3xl shadow-md border border-gray-100 overflow-hidden transition-all duration-500 hover:shadow-2xl hover:-translate-y-2 w-full md:w-[calc(50%-1.25rem)] lg:w-[450px]">
-                        <img src="{{ asset('image/landing/dash7.jpg') }}" alt="UI/UX" class="w-full h-56 object-cover">
-                        <div class="p-8">
-                            <div class="flex justify-between items-center mb-4">
-                                <span class="text-xs font-black text-primary uppercase tracking-widest">Design</span>
-                                <span class="text-xs bg-red-100 text-red-600 px-3 py-1 rounded-lg font-bold">5 HARI LAGI</span>
-                            </div>
-                            <h4 class="text-2xl font-bold mb-4 text-gray-800">UI/UX Championship</h4>
-                            <div class="space-y-4 mb-8">
-                                <div class="flex items-center gap-4 text-gray-600">
-                                    <i class="fa-solid fa-users text-lg text-primary/60"></i> 
-                                    <span class="font-medium">Tim (Maks. 3 Orang)</span>
+                @if ($geteksiKompetisi->isNotEmpty())
+                    <div class="flex flex-wrap justify-center gap-10">
+                        @foreach ($geteksiKompetisi as $kompetisi)
+                            @php
+                                $registEnd = \Carbon\Carbon::parse($kompetisi->regist_end_date);
+                                $today     = \Carbon\Carbon::today();
+                                $daysLeft  = $today->diffInDays($registEnd, false);
+                                $isClosed  = $daysLeft < 0;
+                            @endphp
+                            <div class="bg-white rounded-3xl shadow-md border border-gray-100 overflow-hidden transition-all duration-500 hover:shadow-2xl hover:-translate-y-2 w-full md:w-[calc(50%-1.25rem)] lg:w-[450px]">
+                                @if ($kompetisi->poster)
+                                    <img src="{{ asset('image/events/posters/' . $kompetisi->poster) }}" alt="{{ $kompetisi->name }}" class="w-full h-56 object-cover">
+                                @else
+                                    <div class="w-full h-56 bg-gray-100 flex items-center justify-center">
+                                        <i class="fa-solid fa-image text-4xl text-gray-300"></i>
+                                    </div>
+                                @endif
+                                <div class="p-8">
+                                    <div class="flex justify-between items-center mb-4">
+                                        <span class="text-xs font-black text-primary uppercase tracking-widest">Kompetisi</span>
+                                        @if ($isClosed)
+                                            <span class="text-xs bg-red-100 text-red-600 px-3 py-1 rounded-lg font-bold">TUTUP</span>
+                                        @else
+                                            <span class="text-xs bg-green-100 text-green-600 px-3 py-1 rounded-lg font-bold">{{ $daysLeft }} HARI LAGI</span>
+                                        @endif
+                                    </div>
+                                    <h4 class="text-2xl font-bold mb-4 text-gray-800">{{ $kompetisi->name }}</h4>
+                                    <div class="space-y-4 mb-8">
+                                        <div class="flex items-center gap-4 text-gray-600">
+                                            <i class="fa-regular fa-calendar text-lg text-primary/60"></i>
+                                            <span class="font-medium">{{ \Carbon\Carbon::parse($kompetisi->regist_end_date)->translatedFormat('d F Y') }}</span>
+                                        </div>
+                                        <div class="flex items-center gap-4 text-gray-600">
+                                            <i class="fa-solid fa-ticket text-lg text-primary/60"></i>
+                                            <span class="font-medium">Rp{{ number_format($kompetisi->price, 0, ',', '.') }}</span>
+                                        </div>
+                                    </div>
+                                    <a href="{{ route('landing.events.detail', $kompetisi->id) }}" class="btn btn-primary btn-lg btn-block text-white shadow-lg border-none hover:brightness-110">
+                                        Lihat Detail <i class="fa-solid fa-arrow-right ml-2"></i>
+                                    </a>
                                 </div>
-                                <div class="flex items-center gap-4 text-gray-600">
-                                    <i class="fa-solid fa-trophy text-lg text-yellow-500"></i> 
-                                    <span class="font-medium">Total Hadiah Rp5.000.000</span>
-                                </div>
                             </div>
-                            <a href="#" class="btn btn-primary btn-lg btn-block text-white shadow-lg border-none hover:brightness-110">
-                                Daftar Sekarang
-                            </a>
-                        </div>
+                        @endforeach
                     </div>
-
-                    <div class="bg-white rounded-3xl shadow-md border border-gray-100 overflow-hidden transition-all duration-500 hover:shadow-2xl hover:-translate-y-2 w-full md:w-[calc(50%-1.25rem)] lg:w-[450px]">
-                        <img src="{{ asset('image/landing/dash7.jpg') }}" alt="Web Dev" class="w-full h-56 object-cover">
-                        <div class="p-8">
-                            <div class="flex justify-between items-center mb-4">
-                                <span class="text-xs font-black text-primary uppercase tracking-widest">Code</span>
-                                <span class="text-xs bg-blue-100 text-blue-600 px-3 py-1 rounded-lg font-bold">12 HARI LAGI</span>
-                            </div>
-                            <h4 class="text-2xl font-bold mb-4 text-gray-800">Competitive Web Dev</h4>
-                            <div class="space-y-4 mb-8">
-                                <div class="flex items-center gap-4 text-gray-600">
-                                    <i class="fa-solid fa-user text-lg text-primary/60"></i> 
-                                    <span class="font-medium">Individu</span>
-                                </div>
-                                <div class="flex items-center gap-4 text-gray-600">
-                                    <i class="fa-solid fa-trophy text-lg text-yellow-500"></i> 
-                                    <span class="font-medium">Total Hadiah Rp3.500.000</span>
-                                </div>
-                            </div>
-                            <a href="#" class="btn btn-primary btn-lg btn-block text-white shadow-lg border-none hover:brightness-110">
-                                Daftar Sekarang
-                            </a>
-                        </div>
+                @else
+                    <div class="text-center py-12 text-gray-400">
+                        <i class="fa-solid fa-trophy text-5xl mb-4"></i>
+                        <p class="text-lg font-medium">Belum ada kompetisi tersedia</p>
                     </div>
-
-                </div>
+                @endif
             </div>
         </div>
 
