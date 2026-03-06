@@ -14,7 +14,15 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'role',
+        'telephone_number',
+        'is_stikom',
+        'nim',
+        'generation',
+        'prodi',
+        'instansi_type',
+        'asal_sekolah',
+        'asal_kampus',
+        'email_verified_at',
     ];
 
     protected $hidden = [
@@ -26,6 +34,8 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
+            'password' => 'hashed',
+            'is_stikom' => 'boolean',
         ];
     }
 

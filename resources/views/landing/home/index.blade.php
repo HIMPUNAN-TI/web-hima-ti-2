@@ -31,6 +31,70 @@
     {{-- ============================= End Hero Section ============================= --}}
 
 
+    {{-- ============================= Visi & Misi Section ============================= --}}
+
+    <section class="py-20 bg-[rgba(1,64,151,1)]" id="visi-misi">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-bold mb-4 text-white">Visi & Misi</h2>
+                <div class="w-24 h-1 bg-white mx-auto rounded-full"></div>
+                <p class="mt-4 text-blue-100">Landasan perjuangan Himaprodi ITB STIKOM Bali dalam mewujudkan aspirasi mahasiswa.</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
+                <div class="card bg-white/95 shadow-xl border-t-4 border-blue-400 h-full">
+                    <div class="card-body">
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="p-3 bg-blue-100 rounded-lg text-[rgba(1,64,151,1)]">
+                                <svg xmlns="" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                </svg>
+                            </div>
+                            <h3 class="card-title text-2xl font-bold text-gray-800">Visi Kami</h3>
+                        </div>
+                        <p class="text-lg italic leading-relaxed text-gray-700">
+                            “Membangun Himaprodi TI sebagai ruang inovasi, kreativitas, dan prestasi mahasiswa, guna membentuk generasi unggul berdaya saing global, serta siap berkontribusi nyata dalam mewujudkan Indonesia Emas 2045.”
+                        </p>
+                    </div>
+                </div>
+
+                <div class="card bg-white/95 shadow-xl border-t-4 border-blue-400 h-full">
+                    <div class="card-body">
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="p-3 bg-blue-100 rounded-lg text-[rgba(1,64,151,1)]">
+                                <svg xmlns="" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                </svg>
+                            </div>
+                            <h3 class="card-title text-2xl font-bold text-gray-800">Misi Kami</h3>
+                        </div>
+                        <ul class="space-y-4">
+                            <li class="flex gap-3">
+                                <span class="badge bg-[rgba(1,64,151,1)] text-white border-none font-bold text-lg p-3">1</span>
+                                <p class="text-gray-700">Membangun lingkungan internal yang inklusif dan berlandaskan rasa kekeluargaan untuk mendorong partisipasi aktif setiap anggota.</p>
+                            </li>
+                            <li class="flex gap-3">
+                                <span class="badge bg-[rgba(1,64,151,1)] text-white border-none font-bold text-lg p-3">2</span>
+                                <p class="text-gray-700">Menyediakan wadah, program, dan kegiatan yang mendorong kreativitas serta inovasi mahasiswa dalam bidang akademik maupun non akademik.</p>
+                            </li>
+                            <li class="flex gap-3">
+                                <span class="badge bg-[rgba(1,64,151,1)] text-white border-none font-bold text-lg p-3">3</span>
+                                <p class="text-gray-700">Membina kemampuan kepemimpinan, kerja sama tim, dan kolaborasi mahasiswa secara efektif, dari tingkat lokal hingga nasional.</p>
+                            </li>
+                            <li class="flex gap-3">
+                                <span class="badge bg-[rgba(1,64,151,1)] text-white border-none font-bold text-lg p-3">4</span>
+                                <p class="text-gray-700">Melaksanakan kegiatan sosial dan pengabdian masyarakat yang berdampak positif, mendukung tercapainya Indonesia Emas 2045.</p>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    {{-- ============================= End Visi & Misi Section ============================= --}}
+
 
     {{-- ============================= About Us Section ============================= --}}
     <section
@@ -105,12 +169,10 @@
     </section>
     {{-- ============================= End About Us Section ============================= --}}
 
-
-
-
     {{-- ============================= Event Section ============================= --}}
     <section class="bg-white px-8 md:px-16 lg:px-32 py-16 lg:py-24" id="event">
-        <!-- Section Title & Description -->
+        
+    <!-- Section Title & Description -->
         <div class="text-center max-w-3xl mx-auto mb-12">
             <h2 class="text-4xl font-bold">Event Kami</h2>
             <div class="w-16 h-1 bg-primary mx-auto mt-3"></div>
@@ -120,7 +182,132 @@
             </p>
         </div>
 
-        <!-- Recent Event - Full Width -->
+        <!-- Event Geteksi Local -->
+        <div class="mb-12">
+
+            <div class="bg-white rounded-lg overflow-hidden grid grid-cols-1 lg:grid-cols-6 gap-6 shadow-lg mb-12">
+                <div class="lg:col-span-3 relative">
+                    <span class="absolute top-4 left-4 bg-primary text-white text-xs font-semibold px-3 py-1 rounded-full z-10">
+                        EVENT TERKINI
+                    </span>
+                    <img src="{{ asset('image/landing/dash7.jpg') }}" alt="GETEKSI VOL. 3" class="w-full h-full object-cover min-h-[300px]">
+                </div>
+
+                <div class="lg:col-span-3 p-6 lg:p-8 flex flex-col justify-between">
+                    <div>
+                        <span class="badge badge-outline badge-success text-sm font-semibold uppercase tracking-wide">TERSEDIA</span>
+                        <h3 class="text-2xl lg:text-3xl font-bold mt-2 mb-4">GETEKSI VOL. 3</h3>
+                        <div class="space-y-3 mb-6 text-gray-600">
+                            <div class="flex items-center gap-3"><i class="fa-regular fa-calendar text-primary"></i> <span>25 Mei 2026</span></div>
+                            <div class="flex items-center gap-3"><i class="fa-solid fa-location-dot text-primary"></i> <span>Aula ITB STIKOM BALI</span></div>
+                            <div class="flex items-center gap-3"><i class="fa-solid fa-ticket text-primary"></i> <span>Rp30.000</span></div>
+                        </div>
+                        <p class="text-gray-600 text-sm leading-relaxed">
+                            Bergabunglah dalam workshop intensif selama satu hari untuk mempelajari tren desain terbaru.
+                        </p>
+                    </div>
+                    <div class="mt-6">
+                        <a href="#" class="btn btn-primary text-white px-6">Lihat Detail <i class="fa-solid fa-arrow-right ml-2"></i></a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-24"> 
+                <div class="flex items-center justify-between mb-10">
+                    <div>
+                        <h2 class="text-3xl font-bold text-gray-800 tracking-tight">Kompetisi Geteksi</h2>
+                        <p class="text-gray-500 text-base mt-1">Pilih kategori lomba yang ingin Anda ikuti</p>
+                    </div>
+                    <span class="bg-primary/10 text-primary px-5 py-1.5 rounded-full text-sm font-bold shadow-sm">
+                        {{ $geteksiKompetisi->count() }} Lomba Tersedia
+                    </span>
+                </div>
+
+                @if ($geteksiKompetisi->isNotEmpty())
+                    <div class="flex flex-wrap justify-center gap-10">
+                        @foreach ($geteksiKompetisi as $kompetisi)
+                            @php
+                                $registEnd  = \Carbon\Carbon::parse($kompetisi->regist_end_date);
+                                $today      = \Carbon\Carbon::today();
+                                $daysLeft   = $today->diffInDays($registEnd, false);
+                                $isClosed   = $daysLeft < 0;
+                            @endphp
+                            <div class="bg-white rounded-3xl shadow-md border border-gray-100 overflow-hidden transition-all duration-500 hover:shadow-2xl hover:-translate-y-2 w-full md:w-[calc(50%-1.25rem)] lg:w-[450px]">
+                                @if ($kompetisi->poster)
+                                    <img src="{{ asset('image/events/posters/' . $kompetisi->poster) }}" alt="{{ $kompetisi->name }}" class="w-full h-56 object-cover">
+                                @else
+                                    <div class="w-full h-56 bg-gray-100 flex items-center justify-center">
+                                        <i class="fa-solid fa-image text-4xl text-gray-300"></i>
+                                    </div>
+                                @endif
+                                <div class="p-8">
+                                    <div class="flex justify-between items-center mb-4">
+                                        <span class="text-xs font-black text-primary uppercase tracking-widest">Kompetisi</span>
+                                        @if ($isClosed)
+                                            <span class="text-xs bg-red-100 text-red-600 px-3 py-1 rounded-lg font-bold">TUTUP</span>
+                                        @else
+                                            <span class="text-xs bg-green-100 text-green-600 px-3 py-1 rounded-lg font-bold">{{ $daysLeft }} HARI LAGI</span>
+                                        @endif
+                                    </div>
+                                    <h4 class="text-2xl font-bold mb-4 text-gray-800">{{ $kompetisi->name }}</h4>
+                                    <div class="space-y-4 mb-8">
+                                        <div class="flex items-center gap-4 text-gray-600">
+                                            <i class="fa-regular fa-calendar text-lg text-primary/60"></i>
+                                            <span class="font-medium">{{ \Carbon\Carbon::parse($kompetisi->regist_end_date)->translatedFormat('d F Y') }}</span>
+                                        </div>
+                                        <div class="flex items-center gap-4 text-gray-600">
+                                            <i class="fa-solid fa-ticket text-lg text-primary/60"></i>
+                                            <span class="font-medium">Rp{{ number_format($kompetisi->price, 0, ',', '.') }}</span>
+                                        </div>
+                                    </div>
+                                    <a href="{{ route('landing.events.detail', $kompetisi->id) }}" class="btn btn-primary btn-lg btn-block text-white shadow-lg border-none hover:brightness-110">
+                                        Lihat Detail <i class="fa-solid fa-arrow-right ml-2"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                @else
+                    <div class="text-center py-12 text-gray-400">
+                        <i class="fa-solid fa-trophy text-5xl mb-4"></i>
+                        <p class="text-lg font-medium">Belum ada kompetisi tersedia</p>
+                    </div>
+                @endif
+            </div>
+        </div>
+
+        <!-- Event Famgath Local -->
+        <div class="mb-12">
+
+            <div class="bg-white rounded-lg overflow-hidden grid grid-cols-1 lg:grid-cols-6 gap-6 shadow-lg mb-12">
+                <div class="lg:col-span-3 relative">
+                    <span class="absolute top-4 left-4 bg-primary text-white text-xs font-semibold px-3 py-1 rounded-full z-10">
+                        EVENT TERKINI
+                    </span>
+                    <img src="{{ asset('image/landing/dash7.jpg') }}" alt="GETEKSI VOL. 3" class="w-full h-full object-cover min-h-[300px]">
+                </div>
+
+                <div class="lg:col-span-3 p-6 lg:p-8 flex flex-col justify-between">
+                    <div>
+                        <span class="badge badge-outline badge-accent text-sm font-semibold uppercase tracking-wide">COOMING SOON</span>
+                        <h3 class="text-2xl lg:text-3xl font-bold mt-2 mb-4">Famgath TI 2026</h3>
+                        <div class="space-y-3 mb-6 text-gray-600">
+                            <div class="flex items-center gap-3"><i class="fa-regular fa-calendar text-primary"></i> <span>-</span></div>
+                            <div class="flex items-center gap-3"><i class="fa-solid fa-location-dot text-primary"></i> <span>-</span></div>
+                            <div class="flex items-center gap-3"><i class="fa-solid fa-ticket text-primary"></i> <span>-</span></div>
+                        </div>
+                        <p class="text-gray-600 text-sm leading-relaxed">
+                            -
+                        </p>
+                    </div>
+                    <div class="mt-6">
+                        <a href="#" class="btn btn-primary text-white px-6">Lihat Detail <i class="fa-solid fa-arrow-right ml-2"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Event Famgath 2025 Full Width -->
         @if ($highlightedEvent)
             <div class="mb-12">
                 <div class="bg-white rounded-lg overflow-hidden grid grid-cols-1 lg:grid-cols-6 gap-6"
