@@ -279,30 +279,39 @@
 
         <!-- Event Famgath Local -->
         <div class="mb-12">
+            <div class="relative bg-white rounded-lg overflow-hidden grid grid-cols-1 lg:grid-cols-6 gap-6 shadow-lg mb-12 border border-gray-100">
+                
+                <div class="absolute inset-0 z-50 flex items-center justify-center pointer-events-none overflow-hidden">
+                    <div class="absolute inset-0 bg-white/40 backdrop-blur-[2px]"></div>
+                    
+                    <h1 class="relative text-6xl lg:text-9xl font-black text-primary/20 uppercase tracking-tighter -rotate-12 whitespace-nowrap select-none">
+                        Coming Soon • Coming Soon • Coming Soon
+                    </h1>
+                </div>
 
-            <div class="bg-white rounded-lg overflow-hidden grid grid-cols-1 lg:grid-cols-6 gap-6 shadow-lg mb-12">
-                <div class="lg:col-span-3 relative">
-                    <span class="absolute top-4 left-4 bg-primary text-white text-xs font-semibold px-3 py-1 rounded-full z-10">
+                <div class="lg:col-span-3 relative opacity-50"> <span class="absolute top-4 left-4 bg-primary text-white text-xs font-semibold px-3 py-1 rounded-full z-10">
                         EVENT TERKINI
                     </span>
                     <img src="{{ asset('image/landing/dash7.jpg') }}" alt="GETEKSI VOL. 3" class="w-full h-full object-cover min-h-[300px]">
                 </div>
 
-                <div class="lg:col-span-3 p-6 lg:p-8 flex flex-col justify-between">
+                <div class="lg:col-span-3 p-6 lg:p-8 flex flex-col justify-between opacity-50">
                     <div>
-                        <span class="badge badge-outline badge-accent text-sm font-semibold uppercase tracking-wide">COOMING SOON</span>
-                        <h3 class="text-2xl lg:text-3xl font-bold mt-2 mb-4">Famgath TI 2026</h3>
-                        <div class="space-y-3 mb-6 text-gray-600">
-                            <div class="flex items-center gap-3"><i class="fa-regular fa-calendar text-primary"></i> <span>-</span></div>
-                            <div class="flex items-center gap-3"><i class="fa-solid fa-location-dot text-primary"></i> <span>-</span></div>
-                            <div class="flex items-center gap-3"><i class="fa-solid fa-ticket text-primary"></i> <span>-</span></div>
+                        <span class="badge badge-outline badge-accent text-sm font-semibold uppercase tracking-wide">COMING SOON</span>
+                        <h3 class="text-2xl lg:text-3xl font-bold mt-2 mb-4 text-gray-400">Famgath TI 2026</h3>
+                        <div class="space-y-3 mb-6 text-gray-400">
+                            <div class="flex items-center gap-3"><i class="fa-regular fa-calendar"></i> <span>-</span></div>
+                            <div class="flex items-center gap-3"><i class="fa-solid fa-location-dot"></i> <span>-</span></div>
+                            <div class="flex items-center gap-3"><i class="fa-solid fa-ticket"></i> <span>-</span></div>
                         </div>
-                        <p class="text-gray-600 text-sm leading-relaxed">
-                            -
+                        <p class="text-gray-400 text-sm leading-relaxed italic">
+                            Detail acara akan segera diumumkan. Pantau terus informasinya!
                         </p>
                     </div>
                     <div class="mt-6">
-                        <a href="#" class="btn btn-primary text-white px-6">Lihat Detail <i class="fa-solid fa-arrow-right ml-2"></i></a>
+                        <button class="btn btn-disabled bg-gray-200 text-gray-400 px-6 cursor-not-allowed">
+                            Lihat Detail <i class="fa-solid fa-lock ml-2"></i>
+                        </button>
                     </div>
                 </div>
             </div>
