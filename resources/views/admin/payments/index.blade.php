@@ -72,7 +72,7 @@
                                     </td>
                                     <td>{{ $payment->decline_reason ?? '-' }}</td>
                                     <td>
-                                        <a href="{{ route('payments.show', $payment) }}" class="btn btn-primary">
+                                        <a href="{{ route('payments.show', $payment) }}" class="btn btn-primary btn-sm">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
                                                 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                                                 stroke-linecap="round" stroke-linejoin="round"
@@ -84,7 +84,19 @@
                                             </svg>
                                             Detail
                                         </a>
-                                        <button type="button" class="btn btn-danger delete-payment"
+                                        @if($payment->proof_of_payment)
+                                        <a href="{{ asset('image/proof_of_payments/' . $payment->proof_of_payment) }}" target="_blank" class="btn btn-info btn-sm">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-file-download" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                                <path d="M14 3v4a1 1 0 0 0 1 1h4"></path>
+                                                <path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z"></path>
+                                                <path d="M12 17v-6"></path>
+                                                <path d="M9.5 14.5l2.5 2.5l2.5 -2.5"></path>
+                                            </svg>
+                                            Bukti
+                                        </a>
+                                        @endif
+                                        <button type="button" class="btn btn-danger btn-sm delete-payment"
                                             data-payment-id="{{ $payment->id }}" data-member-name="{{ $payment->name }}">
                                             <svg xmlns="http://www.w3.org/2000/svg"
                                                 class="icon icon-tabler icon-tabler-trash" width="24" height="24"

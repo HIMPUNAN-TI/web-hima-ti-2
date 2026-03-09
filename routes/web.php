@@ -48,6 +48,7 @@ Route::middleware('auth')->group(function () {
 
         Route::resource('users', UsersController::class);
         Route::resource('members', MembersController::class);
+        Route::get('/events/{event}/export', [EventController::class, 'exportParticipants'])->name('events.export');
         Route::resource('events', EventController::class);
         Route::resource('payments', PaymentController::class)->only(['index', 'show', 'update', 'destroy']);
         Route::resource('attendances', AttendanceController::class)->only(['index']);

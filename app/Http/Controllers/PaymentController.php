@@ -91,9 +91,6 @@ class PaymentController extends Controller
 
             DB::commit();
 
-            // Sync ke Google Sheets
-            \Illuminate\Support\Facades\Artisan::call('sheets:sync-registrations');
-
             return redirect()->route('payments.index', $payment)
                 ->with('success', 'Status pembayaran berhasil diperbarui.');
         } catch (\Exception $e) {
@@ -118,9 +115,6 @@ class PaymentController extends Controller
 
             $payment->delete();
             DB::commit();
-
-            // Sync ke Google Sheets setelah menghapus pendaftaran
-            \Illuminate\Support\Facades\Artisan::call('sheets:sync-registrations');
 
             return redirect()->route('payments.index')
                 ->with('success', 'Pembayaran berhasil dihapus.');
