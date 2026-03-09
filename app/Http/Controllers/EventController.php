@@ -248,7 +248,11 @@ class EventController extends Controller
      */
     public function exportParticipants(Event $event)
     {
-        $payments = \App\Models\Payment::with('member')->where('event_id', $event->id)->orderBy('id')->get();
+        // Ambil semua peserta, bukan hanya yang valid
+        $payments = \App\Models\Payment::with('member')
+            ->where('event_id', $event->id)
+            ->orderBy('id')
+            ->get();
         
         $filename = "peserta_" . \Illuminate\Support\Str::slug($event->name) . "_" . date('Y-m-d_H-i-s') . ".csv";
 
@@ -260,24 +264,41 @@ class EventController extends Controller
             "Expires"             => "0"
         ];
 
-        $columns = ["ID", "Nama", "Email", "NIM", "Nomor Telepon", "Status", "Bukti Pembayaran", "Tanggal Daftar"];
+        // Format kolom persis seperti yang direquest
+        $columns = ["id", "Nama", "Email", "Nim", "Nomor Telepon", "Status", "Tanggal Daftar", "Tanggal Verifikasi"];
 
         $callback = function() use($payments, $columns) {
             $file = fopen('php://output', 'w');
-            fputcsv($file, $columns);
+            
+            // Tambahkan BOM (Byte Order Mark) agar Excel mendeteksi UTF-8
+            fputs($file, "\xEF\xBB\xBF");
+
+            // Gunakan pemisah (delimiter) titik koma ';'
+            fputcsv($file, $columns, ';');
 
             foreach ($payments as $payment) {
-                $proofUrl = $payment->proof_of_payment ? url('image/proof_of_payments/' . $payment->proof_of_payment) : '-';
+                // Map status
+                $mappedStatus = "pending";
+                $tanggalVerifikasi = "";
+
+                if ($payment->status === 'valid') {
+                    $mappedStatus = "verified";
+                    $tanggalVerifikasi = $payment->updated_at ? $payment->updated_at->format('d/m/Y') : '';
+                } elseif ($payment->status === 'ditolak') {
+                    $mappedStatus = "rejected";
+                    $tanggalVerifikasi = $payment->updated_at ? $payment->updated_at->format('d/m/Y') : '';
+                }
+
                 fputcsv($file, [
                     $payment->id,
                     $payment->name,
                     $payment->email,
                     $payment->nim,
                     $payment->telephone_number,
-                    $payment->status,
-                    $proofUrl,
-                    $payment->created_at ? $payment->created_at->format('Y-m-d H:i:s') : ''
-                ]);
+                    $mappedStatus,
+                    $payment->created_at ? $payment->created_at->format('d/m/Y') : '',
+                    $tanggalVerifikasi
+                ], ';');
             }
             fclose($file);
         };

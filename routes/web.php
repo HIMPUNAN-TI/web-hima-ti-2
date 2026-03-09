@@ -8,7 +8,6 @@ use App\Http\Controllers\UsersController;
 use App\Http\Controllers\MembersController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\LandingPageController;
-use App\Http\Controllers\GoogleSheetsController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [LandingPageController::class, 'index'])->name('landing.index');
@@ -53,9 +52,6 @@ Route::middleware('auth')->group(function () {
         Route::resource('payments', PaymentController::class)->only(['index', 'show', 'update', 'destroy']);
         Route::resource('attendances', AttendanceController::class)->only(['index']);
 
-        // Google Sheets
-        Route::get('/sheets', [GoogleSheetsController::class, 'index'])->name('admin.sheets.index');
-        Route::post('/sheets', [GoogleSheetsController::class, 'store'])->name('admin.sheets.store');
     });
 });
 
