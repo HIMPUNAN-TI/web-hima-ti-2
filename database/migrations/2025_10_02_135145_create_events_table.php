@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('events', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->string('type')->default('general'); // general, geteksi, kompetisi, famgath
             $table->decimal('price', 10, 2)->default(0);
             $table->date('date');
             $table->date('regist_start_date');
