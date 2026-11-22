@@ -45,6 +45,9 @@ jobs:
             echo "🚀 Navigating to project directory..."
             cd ${{ secrets.VPS_DEPLOY_PATH || '/var/www/web-hima-ti-2' }}
 
+            echo "🛡️ Setting git safe directory..."
+            git config --global --add safe.directory '*'
+
             echo "📦 Pulling latest changes from main..."
             git pull origin main
 
