@@ -68,19 +68,40 @@ class LandingPageController extends Controller
             return redirect()->route('landing.events.index')->with('error', 'Event not found.');
         }
 
+        $user = Auth::user();
+        $member = $user?->member;
+
+        // Requirement 2: Data peserta (Nama, No. HP, Institusi) wajib lengkap sebelum mendaftar kegiatan
+        if (!$member || empty($user->name) || empty($member->telephone_number) || empty($member->institution)) {
+            session(['redirect_after_profile' => route('landing.events.register', $id)]);
+            return redirect()->route('landing.profile.edit')
+                ->with('warning', 'Data profil Anda belum lengkap. Silakan lengkapi nama, nomor HP, dan asal institusi Anda terlebih dahulu sebelum mendaftar kegiatan.');
+        }
+
         $title = $event->name;
 
-        return view('landing.events.register', compact('event', 'title'));
+        return view('landing.events.register', compact('event', 'title', 'user', 'member'));
     }
 
     public function submitEventRegistration(Request $request, $id)
     {
+        $user = Auth::user();
+        $member = $user?->member;
+
+        // Requirement 2: Pengecekan keamanan sisi server
+        if (!$member || empty($user->name) || empty($member->telephone_number) || empty($member->institution)) {
+            session(['redirect_after_profile' => route('landing.events.register', $id)]);
+            return redirect()->route('landing.profile.edit')
+                ->with('warning', 'Data profil Anda belum lengkap. Silakan lengkapi nama, nomor HP, dan asal institusi Anda terlebih dahulu sebelum mendaftar kegiatan.');
+        }
+
         $request->validate([
             'event_id' => 'required|exists:events,id',
             'member_id' => 'required|exists:members,id',
             'name' => 'required|string|max:255',
             'email' => 'required|email|max:255',
-            'nim' => 'required|string|max:50',
+            'institution' => 'required|string|max:255',
+            'nim' => 'nullable|string|max:50',
             'phone' => 'required|string|max:20',
             'payment_proof' => 'required|file|mimes:jpg,jpeg,png,pdf|max:2048',
         ]);
@@ -89,6 +110,15 @@ class LandingPageController extends Controller
 
         if (!$event) {
             return redirect()->route('landing.events.index')->with('error', 'Event not found.');
+        }
+
+        // Sinkronisasi data member jika ada pembaruan di form
+        if ($member) {
+            $member->update([
+                'telephone_number' => $request->phone,
+                'institution' => $request->institution,
+                'nim' => $request->filled('nim') ? $request->nim : $member->nim,
+            ]);
         }
 
         // Handle payment proof upload
@@ -110,7 +140,8 @@ class LandingPageController extends Controller
             'member_id' => $request->member_id,
             'name' => $request->name,
             'email' => $request->email,
-            'nim' => $request->nim,
+            'institution' => $request->institution,
+            'nim' => $request->filled('nim') ? $request->nim : null,
             'telephone_number' => $request->phone,
             'status' => Payment::STATUS_PENDING,
             'proof_of_payment' => $paymentProofName,

@@ -16,6 +16,7 @@ class Payment extends Model
         'email',
         'nim',
         'telephone_number',
+        'institution',
         'status',
         'decline_reason',
         'proof_of_payment'

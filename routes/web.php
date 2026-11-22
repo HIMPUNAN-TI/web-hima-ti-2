@@ -8,6 +8,7 @@ use App\Http\Controllers\ForgotPasswordController;
 use App\Http\Controllers\LandingPageController;
 use App\Http\Controllers\MembersController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UsersController;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Http\Request;
@@ -77,6 +78,10 @@ Route::middleware('auth')->group(function () {
 
     // Member Routes (Wajib Verified & Role Member)
     Route::middleware(['role:member', 'verified'])->group(function () {
+        // Kelengkapan Data Profil Peserta (Requirement 2)
+        Route::get('/profile', [ProfileController::class, 'edit'])->name('landing.profile.edit');
+        Route::put('/profile', [ProfileController::class, 'update'])->name('landing.profile.update');
+
         Route::get('/events/{id}/register', [LandingPageController::class, 'eventRegister'])->name('landing.events.register');
         Route::post('/events/{id}/register', [LandingPageController::class, 'submitEventRegistration'])->name('landing.events.register.submit');
         Route::get('/my-events', [LandingPageController::class, 'myEvents'])->name('landing.profile.my-events');

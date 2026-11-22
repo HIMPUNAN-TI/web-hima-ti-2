@@ -115,7 +115,7 @@
                         </h2>
                         <p class="text-gray-600 mb-6">Lengkapi form di bawah ini untuk mendaftar event</p>
 
-                        <form action="{{ route('landing.events.register', $event->id) }}" method="POST"
+                        <form action="{{ route('landing.events.register.submit', $event->id) }}" method="POST"
                             enctype="multipart/form-data">
                             @csrf
 
@@ -123,7 +123,7 @@
                             <input type="hidden" name="event_id" value="{{ $event->id }}">
 
                             <!-- Member ID (Hidden) -->
-                            @if (Auth::check())
+                            @if (Auth::check() && Auth::user()->member)
                                 <input type="hidden" name="member_id" value="{{ Auth::user()->member->id }}">
                             @endif
 
@@ -161,34 +161,52 @@
                                 @enderror
                             </div>
 
-                            <!-- NIM -->
+                            <!-- Asal Institusi -->
                             <div class="form-control mb-4">
                                 <label class="label">
                                     <span class="label-text font-semibold text-gray-700">
-                                        NIM <span class="text-error">*</span>
+                                        Asal Institusi / Kampus / Sekolah <span class="text-error">*</span>
                                     </span>
                                 </label>
-                                <input type="text" name="nim" placeholder="Masukkan NIM"
-                                    class="input input-bordered w-full @error('nim') input-error @enderror"
-                                    value="{{ old('nim', Auth::user()->member->nim ?? '') }}" required>
-                                @error('nim')
+                                <input type="text" name="institution" placeholder="Contoh: ITB STIKOM Bali / SMA Negeri 1 / Umum"
+                                    class="input input-bordered w-full @error('institution') input-error @enderror"
+                                    value="{{ old('institution', Auth::user()->member->institution ?? '') }}" required>
+                                @error('institution')
                                     <label class="label">
                                         <span class="label-text-alt text-error">{{ $message }}</span>
                                     </label>
                                 @enderror
                             </div>
 
-                            <!-- Nomor Telepon -->
+                            <!-- Nomor Telepon / WhatsApp -->
                             <div class="form-control mb-4">
                                 <label class="label">
                                     <span class="label-text font-semibold text-gray-700">
-                                        Nomor Telepon <span class="text-error">*</span>
+                                        Nomor Telepon / WhatsApp <span class="text-error">*</span>
                                     </span>
                                 </label>
                                 <input type="tel" name="phone" placeholder="08xxxxxxxxxx"
                                     class="input input-bordered w-full @error('phone') input-error @enderror"
                                     value="{{ old('phone', Auth::user()->member->telephone_number ?? '') }}" required>
                                 @error('phone')
+                                    <label class="label">
+                                        <span class="label-text-alt text-error">{{ $message }}</span>
+                                    </label>
+                                @enderror
+                            </div>
+
+                            <!-- NIM (Opsional jika ada) -->
+                            <div class="form-control mb-4">
+                                <label class="label">
+                                    <span class="label-text font-semibold text-gray-700">
+                                        NIM (Nomor Induk Mahasiswa)
+                                    </span>
+                                    <span class="label-text-alt text-gray-400 text-xs">Opsional jika ada</span>
+                                </label>
+                                <input type="text" name="nim" placeholder="Masukkan NIM (jika ada)"
+                                    class="input input-bordered w-full @error('nim') input-error @enderror"
+                                    value="{{ old('nim', Auth::user()->member->nim ?? '') }}">
+                                @error('nim')
                                     <label class="label">
                                         <span class="label-text-alt text-error">{{ $message }}</span>
                                     </label>
