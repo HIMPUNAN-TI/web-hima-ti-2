@@ -46,30 +46,43 @@ Route::middleware('guest')->group(function () {
     Route::post('/reset-password', [ForgotPasswordController::class, 'reset'])->name('password.update');
 });
 
+// Tautan verifikasi email dari Gmail/Inbox (dapat diakses langsung tanpa harus login sebelumnya)
+Route::get('/email/verify/{id}/{hash}', function (Request $request, $id, $hash) {
+    $user = \App\Models\User::findOrFail($id);
+
+    // Pastikan hash email sesuai dengan sha1(email)
+    if (! hash_equals(sha1($user->getEmailForVerification()), (string) $hash)) {
+        return redirect()->route('login')->with('error', 'Tautan verifikasi email tidak valid.');
+    }
+
+    if (! $user->hasVerifiedEmail()) {
+        $user->markEmailAsVerified();
+        event(new \Illuminate\Auth\Events\Verified($user));
+
+        // Kirim email konfirmasi resmi bahwa akun & email sudah terverifikasi
+        try {
+            \Illuminate\Support\Facades\Mail::to($user)->send(
+                new \App\Mail\EmailVerifiedNotification($user)
+            );
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('Gagal kirim email konfirmasi verifikasi: ' . $e->getMessage());
+        }
+    }
+
+    // Login-kan user secara otomatis di sesi browser ini
+    \Illuminate\Support\Facades\Auth::login($user);
+
+    return redirect()->route('landing.profile.edit')->with('success', 'Email Anda berhasil diverifikasi! Silakan lengkapi profil Anda.');
+})->middleware(['signed'])->name('verification.verify');
+
 // Authenticated Routes
 Route::middleware('auth')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-    // Email Verification Notice & Handlers
+    // Email Verification Notice & Resend Handlers
     Route::get('/email/verify', function () {
         return view('auth.verify-email');
     })->name('verification.notice');
-
-    Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
-        $request->fulfill();
-
-        // Kirim email konfirmasi resmi bahwa akun & email sudah terverifikasi
-        try {
-            \Illuminate\Support\Facades\Mail::to($request->user())->send(
-                new \App\Mail\EmailVerifiedNotification($request->user())
-            );
-        } catch (\Throwable $e) {
-            // Kegagalan kirim email tidak membatalkan status verifikasi
-            \Illuminate\Support\Facades\Log::warning('Gagal kirim email konfirmasi verifikasi: ' . $e->getMessage());
-        }
-
-        return redirect()->route('landing.index')->with('success', 'Email berhasil diverifikasi! Selamat datang.');
-    })->middleware(['signed'])->name('verification.verify');
 
     Route::post('/email/verification-notification', function (Request $request) {
         $request->user()->sendEmailVerificationNotification();
