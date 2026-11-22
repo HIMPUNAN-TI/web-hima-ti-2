@@ -41,7 +41,14 @@
 
                 <!-- Event Price -->
                 <div class="mb-6">
-                    <p class="text-3xl font-bold text-primary">Rp{{ number_format($event->price, 0, ',', '.') }}</p>
+                    @if ($event->isFree())
+                        <div class="flex items-center gap-2">
+                            <span class="badge badge-success badge-lg text-white font-bold text-xl px-5 py-4">GRATIS</span>
+                            <span class="text-sm text-gray-500 font-medium">(Tanpa biaya pendaftaran)</span>
+                        </div>
+                    @else
+                        <p class="text-3xl font-bold text-primary">Rp{{ number_format($event->price, 0, ',', '.') }}</p>
+                    @endif
                 </div>
 
                 <!-- Event Info Cards -->
@@ -56,6 +63,26 @@
                         </div>
                     </div>
 
+                    <!-- Quota Info (Requirement 3) -->
+                    <div class="flex items-center gap-3 p-4 bg-blue-50 rounded-lg">
+                        <i class="fa-solid fa-users text-primary text-xl"></i>
+                        <div>
+                            <p class="text-sm text-gray-600">Kuota Peserta</p>
+                            <p class="font-semibold text-gray-900 flex items-center gap-2">
+                                @if ($event->quota)
+                                    <span>{{ $event->registered_count }} / {{ $event->quota }} Peserta Terdaftar</span>
+                                    @if ($event->isFull())
+                                        <span class="badge badge-error badge-sm text-white">Kuota Penuh</span>
+                                    @else
+                                        <span class="badge badge-success badge-sm text-white">Sisa {{ $event->remaining_quota }}</span>
+                                    @endif
+                                @else
+                                    <span>{{ $event->registered_count }} Peserta (Kuota Terbuka)</span>
+                                @endif
+                            </p>
+                        </div>
+                    </div>
+
                     <!-- Location Info -->
                     <a href="{{ $event->maps }}" target="_blank" rel="noopener noreferrer">
                         <div class="flex items-center gap-3 p-4 bg-blue-50 rounded-lg">
@@ -67,15 +94,6 @@
                             <i class="fa-solid fa-arrow-up-right-from-square text-primary text-lg"></i>
                         </div>
                     </a>
-
-                    <!-- Participants Info -->
-                    {{-- <div class="flex items-center gap-3 p-4 bg-blue-50 rounded-lg">
-                        <i class="fa-solid fa-users text-primary text-xl"></i>
-                        <div>
-                            <p class="text-sm text-gray-600">Jumlah Pendaftar</p>
-                            <p class="font-semibold text-gray-900">2 Peserta</p>
-                        </div>
-                    </div> --}}
                 </div>
 
                 <!-- Event Description -->
@@ -104,14 +122,57 @@
                     </div>
                 </div>
 
-                <!-- CTA Section -->
-                @if (!Auth::check())
-                    <div class="bg-gray-50 p-6 rounded-lg">
-                        <p class="text-gray-700 mb-4">
-                            Belum punya akun? Tenang aja, bikin akun baru itu gampang banget!
+                <!-- CTA Section (Requirement 3: Pendaftaran Ganda, Tenggat, Kuota) -->
+                @if (isset($userRegistration) && $userRegistration)
+                    <div class="alert alert-info shadow-lg rounded-2xl p-6 mb-6">
+                        <i class="fa-solid fa-circle-check text-3xl text-info-content"></i>
+                        <div class="flex-1">
+                            <h3 class="font-bold text-lg text-gray-900">Anda Sudah Terdaftar pada Kegiatan Ini</h3>
+                            <p class="text-sm text-gray-700 mt-1">
+                                Nomor Pendaftaran: <span class="font-mono font-bold text-primary">{{ $userRegistration->registration_code ?? '-' }}</span>
+                            </p>
+                            <p class="text-xs text-gray-600 mt-0.5">
+                                Status: <span class="badge badge-primary text-white font-semibold">{{ ucfirst($userRegistration->status) }}</span>
+                            </p>
+                        </div>
+                        <div class="flex-none">
+                            <a href="{{ route('landing.profile.my-events') }}" class="btn btn-primary text-white shadow-md">
+                                <i class="fa-solid fa-ticket mr-1"></i>
+                                Event Saya
+                            </a>
+                        </div>
+                    </div>
+                @elseif ($event->isDeadlinePassed())
+                    <div class="alert alert-error text-white shadow-md rounded-2xl mb-6">
+                        <i class="fa-solid fa-clock text-2xl"></i>
+                        <div>
+                            <h4 class="font-bold">Pendaftaran Telah Ditutup</h4>
+                            <p class="text-sm">Batas waktu pendaftaran berakhir pada {{ \Carbon\Carbon::parse($event->regist_end_date)->format('d F Y') }}.</p>
+                        </div>
+                    </div>
+                    <button class="btn btn-disabled btn-block px-10 text-gray-400 cursor-not-allowed" disabled>
+                        <i class="fa-solid fa-lock mr-2"></i>
+                        Pendaftaran Telah Ditutup
+                    </button>
+                @elseif ($event->isFull())
+                    <div class="alert alert-warning shadow-md rounded-2xl mb-6">
+                        <i class="fa-solid fa-users-slash text-2xl"></i>
+                        <div>
+                            <h4 class="font-bold">Kuota Kegiatan Penuh</h4>
+                            <p class="text-sm">Mohon maaf, kuota pendaftaran maksimal ({{ $event->quota }} peserta) telah terpenuhi.</p>
+                        </div>
+                    </div>
+                    <button class="btn btn-disabled btn-block px-10 text-gray-400 cursor-not-allowed" disabled>
+                        <i class="fa-solid fa-ban mr-2"></i>
+                        Kuota Peserta Penuh
+                    </button>
+                @elseif (!Auth::check())
+                    <div class="bg-gray-50 p-6 rounded-2xl border border-gray-100">
+                        <p class="text-gray-700 mb-4 font-medium">
+                            Silakan masuk atau daftar akun terlebih dahulu untuk mendaftar pada kegiatan ini:
                         </p>
                         <div class="flex flex-col sm:flex-row gap-3">
-                            <a href="{{ route('register') }}" class="btn btn-primary text-white flex-1">
+                            <a href="{{ route('register') }}" class="btn btn-primary text-white flex-1 shadow-md">
                                 <i class="fa-solid fa-user-plus mr-2"></i>
                                 Registrasi Akun
                             </a>
@@ -121,13 +182,11 @@
                             </a>
                         </div>
                     </div>
-                @endif
-
-                @if (Auth::check())
+                @else
                     <a href="{{ route('landing.events.register', $event->id) }}"
-                        class="btn btn-primary btn-block px-10 text-white">
+                        class="btn btn-primary btn-block px-10 text-white shadow-lg text-lg">
                         <i class="fa-solid fa-pen-to-square mr-2"></i>
-                        Daftar Sekarang
+                        {{ $event->isFree() ? 'Daftar Kegiatan Gratis' : 'Daftar Sekarang' }}
                     </a>
                 @endif
             </div>

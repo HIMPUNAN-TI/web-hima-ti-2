@@ -57,7 +57,15 @@ class LandingPageController extends Controller
 
         $title = $event->name;
 
-        return view('landing.events.detail', compact('event', 'title'));
+        // Cek apakah user yang sedang login sudah pernah mendaftar pada event ini
+        $userRegistration = null;
+        if (Auth::check() && Auth::user()->member) {
+            $userRegistration = Payment::where('event_id', $id)
+                ->where('member_id', Auth::user()->member->id)
+                ->first();
+        }
+
+        return view('landing.events.detail', compact('event', 'title', 'userRegistration'));
     }
 
     public function eventRegister($id)
@@ -78,6 +86,28 @@ class LandingPageController extends Controller
                 ->with('warning', 'Data profil Anda belum lengkap. Silakan lengkapi nama, nomor HP, dan asal institusi Anda terlebih dahulu sebelum mendaftar kegiatan.');
         }
 
+        // Requirement 3: Periksa batas tenggat pendaftaran
+        if ($event->isDeadlinePassed()) {
+            return redirect()->route('landing.events.detail', $id)
+                ->with('error', 'Batas waktu pendaftaran untuk kegiatan ini telah berakhir pada ' . \Carbon\Carbon::parse($event->regist_end_date)->format('d F Y') . '.');
+        }
+
+        // Requirement 3: Periksa kuota kegiatan
+        if ($event->isFull()) {
+            return redirect()->route('landing.events.detail', $id)
+                ->with('error', 'Mohon maaf, kuota pendaftaran untuk kegiatan ini telah penuh.');
+        }
+
+        // Requirement 3: Periksa pendaftaran ganda (mencegah mendaftar lebih dari sekali)
+        $existingRegistration = Payment::where('event_id', $id)
+            ->where('member_id', $member->id)
+            ->first();
+
+        if ($existingRegistration) {
+            return redirect()->route('landing.profile.my-events')
+                ->with('warning', 'Anda sudah pernah mendaftar kegiatan ini dengan status: ' . ucfirst($existingRegistration->status) . ' (Nomor Registrasi: ' . ($existingRegistration->registration_code ?? '-') . ').');
+        }
+
         $title = $event->name;
 
         return view('landing.events.register', compact('event', 'title', 'user', 'member'));
@@ -85,14 +115,42 @@ class LandingPageController extends Controller
 
     public function submitEventRegistration(Request $request, $id)
     {
+        $event = Event::find($id);
+
+        if (!$event) {
+            return redirect()->route('landing.events.index')->with('error', 'Event not found.');
+        }
+
         $user = Auth::user();
         $member = $user?->member;
 
-        // Requirement 2: Pengecekan keamanan sisi server
+        // Requirement 2: Pengecekan kelengkapan profil peserta
         if (!$member || empty($user->name) || empty($member->telephone_number) || empty($member->institution)) {
             session(['redirect_after_profile' => route('landing.events.register', $id)]);
             return redirect()->route('landing.profile.edit')
                 ->with('warning', 'Data profil Anda belum lengkap. Silakan lengkapi nama, nomor HP, dan asal institusi Anda terlebih dahulu sebelum mendaftar kegiatan.');
+        }
+
+        // Requirement 3: Periksa batas tenggat pendaftaran di sisi server
+        if ($event->isDeadlinePassed()) {
+            return redirect()->route('landing.events.detail', $id)
+                ->with('error', 'Batas waktu pendaftaran untuk kegiatan ini telah berakhir.');
+        }
+
+        // Requirement 3: Periksa kuota kegiatan di sisi server
+        if ($event->isFull()) {
+            return redirect()->route('landing.events.detail', $id)
+                ->with('error', 'Mohon maaf, kuota pendaftaran untuk kegiatan ini telah penuh.');
+        }
+
+        // Requirement 3: Periksa pendaftaran ganda di sisi server
+        $existingRegistration = Payment::where('event_id', $id)
+            ->where('member_id', $member->id)
+            ->first();
+
+        if ($existingRegistration) {
+            return redirect()->route('landing.profile.my-events')
+                ->with('warning', 'Anda sudah terdaftar pada kegiatan ini.');
         }
 
         $request->validate([
@@ -103,14 +161,8 @@ class LandingPageController extends Controller
             'institution' => 'required|string|max:255',
             'nim' => 'nullable|string|max:50',
             'phone' => 'required|string|max:20',
-            'payment_proof' => 'required|file|mimes:jpg,jpeg,png,pdf|max:2048',
+            'payment_proof' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
         ]);
-
-        $event = Event::find($id);
-
-        if (!$event) {
-            return redirect()->route('landing.events.index')->with('error', 'Event not found.');
-        }
 
         // Sinkronisasi data member jika ada pembaruan di form
         if ($member) {
@@ -121,13 +173,12 @@ class LandingPageController extends Controller
             ]);
         }
 
-        // Handle payment proof upload
+        // Handle payment proof upload jika disertakan
         $paymentProofName = null;
         if ($request->hasFile('payment_proof')) {
             $paymentProofFile = $request->file('payment_proof');
             $paymentProofName = time() . '_payment_proof_' . $paymentProofFile->getClientOriginalName();
             
-            // Create directory if it doesn't exist
             if (!is_dir(public_path('image/proof_of_payments'))) {
                 mkdir(public_path('image/proof_of_payments'), 0755, true);
             }
@@ -135,19 +186,35 @@ class LandingPageController extends Controller
             $paymentProofFile->move(public_path('image/proof_of_payments'), $paymentProofName);
         }
 
+        // Requirement 3: Generate nomor unik pendaftaran
+        $registrationCode = Payment::generateRegistrationCode($event->id);
+
+        // Requirement 3: Tentukan status pendaftaran
+        // Kegiatan gratis langsung 'terdaftar', kegiatan berbayar 'menunggu pembayaran' (atau 'menunggu verifikasi' jika bukti langsung diunggah)
+        if ($event->isFree()) {
+            $status = Payment::STATUS_REGISTERED;
+            $successMsg = "Pendaftaran berhasil! Anda telah resmi terdaftar pada kegiatan gratis ini dengan nomor pendaftaran: $registrationCode.";
+        } else {
+            $status = $paymentProofName ? Payment::STATUS_PENDING : Payment::STATUS_UNPAID;
+            $successMsg = $paymentProofName 
+                ? "Pendaftaran berhasil dengan nomor $registrationCode! Bukti pembayaran telah diterima dan sedang menunggu verifikasi panitia."
+                : "Pendaftaran berhasil dengan nomor unik $registrationCode! Status Anda saat ini Menunggu Pembayaran. Silakan selesaikan pembayaran.";
+        }
+
         Payment::create([
-            'event_id' => $request->event_id,
-            'member_id' => $request->member_id,
+            'registration_code' => $registrationCode,
+            'event_id' => $event->id,
+            'member_id' => $member->id,
             'name' => $request->name,
             'email' => $request->email,
             'institution' => $request->institution,
             'nim' => $request->filled('nim') ? $request->nim : null,
             'telephone_number' => $request->phone,
-            'status' => Payment::STATUS_PENDING,
+            'status' => $status,
             'proof_of_payment' => $paymentProofName,
         ]);
 
-        return redirect()->route('landing.events.detail', $id)->with('success', 'Registrasi berhasil!. Silahkan tunggu konfirmasi dari panitia.');
+        return redirect()->route('landing.profile.my-events')->with('success', $successMsg);
     }
 
     public function myEvents()

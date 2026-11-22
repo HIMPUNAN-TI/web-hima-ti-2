@@ -64,25 +64,39 @@
 
                                             <!-- Status Badge -->
                                             <div class="flex-shrink-0">
-                                                @if ($registration->status === 'pending')
+                                                @if ($registration->status === 'menunggu pembayaran')
                                                     <span class="badge badge-warning badge-lg gap-2">
+                                                        <i class="fa-solid fa-hourglass-start"></i>
+                                                        Menunggu Pembayaran
+                                                    </span>
+                                                @elseif ($registration->status === 'menunggu verifikasi' || $registration->status === 'pending')
+                                                    <span class="badge badge-info badge-lg gap-2 text-white">
                                                         <i class="fa-solid fa-clock"></i>
-                                                        Menunggu
+                                                        Menunggu Verifikasi
                                                     </span>
                                                 @elseif ($registration->status === 'proses cek')
-                                                    <span class="badge badge-info badge-lg gap-2">
+                                                    <span class="badge badge-info badge-lg gap-2 text-white">
                                                         <i class="fa-solid fa-spinner"></i>
                                                         Proses Cek
                                                     </span>
-                                                @elseif ($registration->status === 'valid')
-                                                    <span class="badge badge-success badge-lg gap-2">
+                                                @elseif ($registration->status === 'valid' || $registration->status === 'terdaftar')
+                                                    <span class="badge badge-success badge-lg gap-2 text-white">
                                                         <i class="fa-solid fa-circle-check"></i>
-                                                        Pendaftaran Valid
+                                                        Terdaftar
                                                     </span>
                                                 @elseif ($registration->status === 'ditolak')
-                                                    <span class="badge badge-error badge-lg gap-2">
+                                                    <span class="badge badge-error badge-lg gap-2 text-white">
                                                         <i class="fa-solid fa-circle-xmark"></i>
-                                                        Pendaftaran Ditolak
+                                                        Ditolak
+                                                    </span>
+                                                @elseif ($registration->status === 'kedaluwarsa')
+                                                    <span class="badge badge-ghost badge-lg gap-2">
+                                                        <i class="fa-solid fa-clock-rotate-left"></i>
+                                                        Kedaluwarsa
+                                                    </span>
+                                                @else
+                                                    <span class="badge badge-neutral badge-lg gap-2">
+                                                        {{ ucfirst($registration->status) }}
                                                     </span>
                                                 @endif
                                             </div>
@@ -134,6 +148,13 @@
 
                                         <!-- Registration Info -->
                                         <div class="bg-gray-50 rounded-lg p-4 mb-4">
+                                            @if ($registration->registration_code)
+                                                <p class="text-sm text-gray-700 mb-2 font-medium">
+                                                    <i class="fa-solid fa-hashtag mr-2 text-primary"></i>
+                                                    <strong>Nomor Registrasi:</strong>
+                                                    <span class="font-mono font-bold text-primary px-2 py-0.5 bg-primary/10 rounded">{{ $registration->registration_code }}</span>
+                                                </p>
+                                            @endif
                                             <p class="text-sm text-gray-600 mb-2">
                                                 <i class="fa-solid fa-user mr-2 text-primary"></i>
                                                 <strong>Pendaftar:</strong> {{ $registration->name }}

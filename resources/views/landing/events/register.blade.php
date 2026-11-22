@@ -55,8 +55,12 @@
                                     <i class="fa-solid fa-tag text-primary text-lg"></i>
                                     <div>
                                         <p class="text-sm text-gray-600">Harga</p>
-                                        <p class="font-bold text-primary text-lg">
-                                            Rp{{ number_format($event->price, 0, ',', '.') }}</p>
+                                        @if ($event->isFree())
+                                            <span class="badge badge-success text-white font-bold text-base px-3 py-2">GRATIS</span>
+                                        @else
+                                            <p class="font-bold text-primary text-lg">
+                                                Rp{{ number_format($event->price, 0, ',', '.') }}</p>
+                                        @endif
                                     </div>
                                 </div>
 
@@ -213,45 +217,55 @@
                                 @enderror
                             </div>
 
-                            <!-- Bukti Pembayaran -->
-                            <div class="form-control mb-6">
-                                <label class="label">
-                                    <span class="label-text font-semibold text-gray-700">
-                                        Bukti Pembayaran <span class="text-error">*</span>
-                                    </span>
-                                </label>
-                                <input type="file" name="payment_proof" accept="image/*,.pdf"
-                                    class="file-input file-input-bordered w-full @error('payment_proof') file-input-error @enderror"
-                                    required>
-                                <label class="label">
-                                    <span class="label-text-alt text-gray-600">
-                                        <i class="fa-solid fa-circle-info mr-1"></i>
-                                        Format: JPG, PNG, atau PDF (Max. 2MB)
-                                    </span>
-                                </label>
-                                @error('payment_proof')
-                                    <label class="label">
-                                        <span class="label-text-alt text-error">{{ $message }}</span>
-                                    </label>
-                                @enderror
-                            </div>
-
-                            <!-- Payment Instructions -->
-                            <div class="alert alert-warning mb-6">
-                                <i class="fa-solid fa-triangle-exclamation"></i>
-                                <div class="text-sm">
-                                    <p class="font-semibold mb-1">Petunjuk Pembayaran:</p>
-                                    <p>Transfer ke rekening: <strong>BRI 036801090268503 a.n. Ida
-                                            Ayu Ika Pramesti Kesuma</strong></p>
-                                    <p>Upload bukti transfer setelah melakukan pembayaran.</p>
+                            @if ($event->isFree())
+                                <!-- Info Kegiatan Gratis (Requirement 3) -->
+                                <div class="alert alert-success text-white mb-6 rounded-2xl shadow-md">
+                                    <i class="fa-solid fa-circle-check text-2xl"></i>
+                                    <div>
+                                        <h4 class="font-bold text-base">Kegiatan Gratis (Free Event)</h4>
+                                        <p class="text-sm">Kegiatan ini tidak dipungut biaya. Anda akan langsung resmi <strong>terdaftar</strong> setelah menekan tombol konfirmasi di bawah.</p>
+                                    </div>
                                 </div>
-                            </div>
+                            @else
+                                <!-- Bukti Pembayaran (Opsional saat daftar awal atau bisa diunggah langsung) -->
+                                <div class="form-control mb-6">
+                                    <label class="label">
+                                        <span class="label-text font-semibold text-gray-700">
+                                            Bukti Transfer / Pembayaran
+                                        </span>
+                                        <span class="label-text-alt text-gray-400 text-xs">Dapat diunggah sekarang atau nanti</span>
+                                    </label>
+                                    <input type="file" name="payment_proof" accept="image/*,.pdf"
+                                        class="file-input file-input-bordered w-full @error('payment_proof') file-input-error @enderror">
+                                    <label class="label">
+                                        <span class="label-text-alt text-gray-600">
+                                            <i class="fa-solid fa-circle-info mr-1"></i>
+                                            Format: JPG, PNG, atau PDF (Maks. 2MB). Jika belum transfer, Anda tetap dapat mendaftar dengan status <em>Menunggu Pembayaran</em>.
+                                        </span>
+                                    </label>
+                                    @error('payment_proof')
+                                        <label class="label">
+                                            <span class="label-text-alt text-error">{{ $message }}</span>
+                                        </label>
+                                    @enderror
+                                </div>
+
+                                <!-- Payment Instructions -->
+                                <div class="alert alert-warning mb-6 rounded-2xl shadow-sm">
+                                    <i class="fa-solid fa-triangle-exclamation text-xl"></i>
+                                    <div class="text-sm">
+                                        <p class="font-semibold mb-1">Petunjuk Pembayaran Transfer:</p>
+                                        <p>Rekening Tujuan: <strong>BRI 036801090268503 a.n. Ida Ayu Ika Pramesti Kesuma</strong></p>
+                                        <p class="mt-1">Nominal: <strong class="text-primary font-bold">Rp{{ number_format($event->price, 0, ',', '.') }}</strong></p>
+                                    </div>
+                                </div>
+                            @endif
 
                             <!-- Buttons -->
-                            <div class="flex flex-col sm:flex-row gap-3">
-                                <button type="submit" class="btn btn-primary text-white flex-1">
+                            <div class="flex flex-col sm:flex-row gap-3 pt-2">
+                                <button type="submit" class="btn btn-primary text-white flex-1 shadow-md">
                                     <i class="fa-solid fa-paper-plane mr-2"></i>
-                                    Daftar Event
+                                    {{ $event->isFree() ? 'Konfirmasi Pendaftaran Gratis' : 'Daftar Kegiatan' }}
                                 </button>
                                 <a href="{{ route('landing.events.detail', $event->id) }}"
                                     class="btn btn-outline btn-primary flex-1">

@@ -10,6 +10,7 @@ class Payment extends Model
     use HasFactory;
 
     protected $fillable = [
+        'registration_code',
         'event_id',
         'member_id',
         'name',
@@ -22,10 +23,25 @@ class Payment extends Model
         'proof_of_payment'
     ];
 
-    const STATUS_PENDING = 'pending';
+    const STATUS_UNPAID = 'menunggu pembayaran';
+    const STATUS_PENDING = 'menunggu verifikasi';
     const STATUS_CHECKING = 'proses cek';
     const STATUS_VALID = 'valid';
+    const STATUS_REGISTERED = 'terdaftar';
     const STATUS_REJECTED = 'ditolak';
+    const STATUS_EXPIRED = 'kedaluwarsa';
+
+    /**
+     * Generate nomor unik pendaftaran kegiatan
+     */
+    public static function generateRegistrationCode($eventId): string
+    {
+        do {
+            $code = 'REG-' . str_pad((string)$eventId, 3, '0', STR_PAD_LEFT) . '-' . strtoupper(\Illuminate\Support\Str::random(6));
+        } while (self::where('registration_code', $code)->exists());
+
+        return $code;
+    }
 
     public static function getDeclineReasons()
     {

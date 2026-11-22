@@ -39,6 +39,7 @@ class EventController extends Controller
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'price' => ['required', 'numeric', 'min:0'],
+            'quota' => ['nullable', 'integer', 'min:1'],
             'date' => ['required', 'date', 'after_or_equal:today'],
             'regist_start_date' => ['required', 'date', 'before_or_equal:regist_end_date'],
             'regist_end_date' => ['required', 'date', 'after_or_equal:regist_start_date', 'before_or_equal:date'],
@@ -129,6 +130,7 @@ class EventController extends Controller
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'price' => ['required', 'numeric', 'min:0'],
+            'quota' => ['nullable', 'integer', 'min:1'],
             'date' => ['required', 'date'],
             'regist_start_date' => ['required', 'date', 'before_or_equal:regist_end_date'],
             'regist_end_date' => ['required', 'date', 'after_or_equal:regist_start_date', 'before_or_equal:date'],
