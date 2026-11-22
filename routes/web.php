@@ -56,6 +56,17 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
         $request->fulfill();
+
+        // Kirim email konfirmasi resmi bahwa akun & email sudah terverifikasi
+        try {
+            \Illuminate\Support\Facades\Mail::to($request->user())->send(
+                new \App\Mail\EmailVerifiedNotification($request->user())
+            );
+        } catch (\Throwable $e) {
+            // Kegagalan kirim email tidak membatalkan status verifikasi
+            \Illuminate\Support\Facades\Log::warning('Gagal kirim email konfirmasi verifikasi: ' . $e->getMessage());
+        }
+
         return redirect()->route('landing.index')->with('success', 'Email berhasil diverifikasi! Selamat datang.');
     })->middleware(['signed'])->name('verification.verify');
 
