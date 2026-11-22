@@ -19,6 +19,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        if (class_exists(\SocialiteProviders\Manager\SocialiteWasCalled::class) && class_exists(\SocialiteProviders\MicrosoftAzure\MicrosoftAzureExtendSocialite::class)) {
+            \Illuminate\Support\Facades\Event::listen(
+                \SocialiteProviders\Manager\SocialiteWasCalled::class,
+                [\SocialiteProviders\MicrosoftAzure\MicrosoftAzureExtendSocialite::class, 'handle']
+            );
+        }
     }
 }

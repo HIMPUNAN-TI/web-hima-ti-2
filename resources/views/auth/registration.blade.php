@@ -45,8 +45,30 @@
                             <div class="card-body">
                                 <h2 class="h2 text-center mb-2" style="font-weight: 400">Registrasi <b>Himaprodi ITB
                                         Stikom Bali</b></h2>
-                                <p class="text-muted text-center mb-4">Proses registrasinya cepat dan mudah, jadi tunggu
-                                    apa lagi? Daftar sekarang dan nikmati pengalaman terbaik bersama kami!</p>
+                                <p class="text-muted text-center mb-4">Daftar menggunakan akun Google/Microsoft atau isi formulir di bawah ini.</p>
+
+                                <div class="row g-2 mb-3">
+                                    <div class="{{ config('services.microsoft.client_id') ? 'col-6' : 'col-12' }}">
+                                        <a href="{{ route('oauth.redirect', 'google') }}" class="btn btn-outline-danger w-100 d-flex align-items-center justify-content-center gap-2">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                                                <path d="M12.24 10.285V13.4h6.887C18.2 16.27 15.6 18.5 12.24 18.5c-3.59 0-6.5-2.91-6.5-6.5s2.91-6.5 6.5-6.5c1.63 0 3.12.61 4.27 1.62l2.35-2.35C17.43 3.39 14.99 2.5 12.24 2.5 7.02 2.5 2.75 6.77 2.75 12s4.27 9.5 9.49 9.5c5.46 0 9.1-3.84 9.1-9.28 0-.62-.06-1.22-.18-1.715H12.24z"/>
+                                            </svg>
+                                            Google
+                                        </a>
+                                    </div>
+                                    @if(config('services.microsoft.client_id'))
+                                    <div class="col-6">
+                                        <a href="{{ route('oauth.redirect', 'microsoft') }}" class="btn btn-outline-primary w-100 d-flex align-items-center justify-content-center gap-2">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                                                <path d="M11.4 11.4H3V3h8.4v8.4zm9.6 0H12.6V3H21v8.4zM11.4 21H3v-8.4h8.4V21zm9.6 0H12.6v-8.4H21V21z"/>
+                                            </svg>
+                                            Microsoft
+                                        </a>
+                                    </div>
+                                    @endif
+                                </div>
+
+                                <div class="hr-text">atau daftar akun lokal</div>
 
                                 <form action="{{ route('register') }}" method="POST" autocomplete="off" novalidate>
                                     @csrf
