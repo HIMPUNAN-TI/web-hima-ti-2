@@ -67,7 +67,7 @@ Route::middleware('auth')->group(function () {
     // Member Routes (Wajib Verified & Role Member)
     Route::middleware(['role:member', 'verified'])->group(function () {
         Route::get('/events/{id}/register', [LandingPageController::class, 'eventRegister'])->name('landing.events.register');
-        Route::post('/events/{id}/register', [LandingPageController::class, 'submitEventRegistration'])->name('landing.events.register');
+        Route::post('/events/{id}/register', [LandingPageController::class, 'submitEventRegistration'])->name('landing.events.register.submit');
         Route::get('/my-events', [LandingPageController::class, 'myEvents'])->name('landing.profile.my-events');
     });
 
