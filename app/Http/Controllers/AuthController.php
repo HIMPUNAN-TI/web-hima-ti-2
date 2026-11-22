@@ -252,6 +252,19 @@ class AuthController extends Controller
                 // OAuth user dianggap email sudah terverifikasi oleh penyedia (Google/Microsoft)
                 'email_verified_at' => $user->email_verified_at ?? now(),
             ]);
+
+            // Pastikan data member sudah ada
+            Member::firstOrCreate(
+                ['user_id' => $user->id],
+                [
+                    'email' => $user->email,
+                    'nim' => null,
+                    'prodi' => null,
+                    'generation' => null,
+                    'telephone_number' => null,
+                    'institution' => null,
+                ]
+            );
         } else {
             // Registrasi otomatis user baru via OAuth
             $user = User::create([
@@ -263,15 +276,18 @@ class AuthController extends Controller
                 'email_verified_at' => now(), // Terverifikasi otomatis
             ]);
 
-            // Buat record member dasar
-            Member::create([
-                'user_id' => $user->id,
-                'email' => $user->email,
-                'nim' => '',
-                'prodi' => '',
-                'generation' => '',
-                'telephone_number' => '',
-            ]);
+            // Buat record member dasar dengan nilai null (akan dilengkapi pada Step 2)
+            Member::firstOrCreate(
+                ['user_id' => $user->id],
+                [
+                    'email' => $user->email,
+                    'nim' => null,
+                    'prodi' => null,
+                    'generation' => null,
+                    'telephone_number' => null,
+                    'institution' => null,
+                ]
+            );
         }
 
         Auth::login($user, true);

@@ -18,6 +18,7 @@ class Member extends Model
         'telephone_number',
         'prodi',
         'generation',
+        'institution',
     ];
 
     protected function casts(): array
