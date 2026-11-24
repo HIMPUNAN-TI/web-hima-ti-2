@@ -30,6 +30,23 @@
                         <h3 class="card-title">Formulir Edit Event</h3>
                     </div>
                     <div class="card-body">
+                        @if ($errors->any())
+                            <div class="alert alert-danger mb-4">
+                                <h4 class="alert-title">Gagal Memperbarui Event:</h4>
+                                <ul class="mb-0">
+                                    @foreach ($errors->all() as $error)
+                                        <li>{{ $error }}</li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        @endif
+
+                        @if (session('error'))
+                            <div class="alert alert-danger mb-4">
+                                {{ session('error') }}
+                            </div>
+                        @endif
+
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
@@ -44,7 +61,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-3">
                                 <div class="mb-3">
                                     <label class="form-label required">Harga</label>
                                     <div class="input-group">
@@ -59,6 +76,18 @@
                                     <small class="form-hint">Masukkan 0 untuk event gratis</small>
                                 </div>
                             </div>
+                            <div class="col-md-3">
+                                <div class="mb-3">
+                                    <label class="form-label">Kuota Peserta</label>
+                                    <input type="number" name="quota" min="1"
+                                        class="form-control @error('quota') is-invalid @enderror" placeholder="Contoh: 100"
+                                        value="{{ old('quota', $event->quota) }}">
+                                    @error('quota')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                    <small class="form-hint">Kosongkan jika kuota tidak dibatasi</small>
+                                </div>
+                            </div>
                         </div>
 
                         <div class="row">
@@ -68,7 +97,7 @@
                                     <div>
                                         <input type="date" name="date"
                                             class="form-control @error('date') is-invalid @enderror"
-                                            value="{{ old('date', $event->date->format('Y-m-d')) }}">
+                                            value="{{ old('date', $event->date ? \Carbon\Carbon::parse($event->date)->format('Y-m-d') : '') }}">
                                         @error('date')
                                             <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
@@ -81,7 +110,7 @@
                                     <div>
                                         <input type="date" name="regist_start_date"
                                             class="form-control @error('regist_start_date') is-invalid @enderror"
-                                            value="{{ old('regist_start_date', $event->regist_start_date->format('Y-m-d')) }}">
+                                            value="{{ old('regist_start_date', $event->regist_start_date ? \Carbon\Carbon::parse($event->regist_start_date)->format('Y-m-d') : '') }}">
                                         @error('regist_start_date')
                                             <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
@@ -94,7 +123,7 @@
                                     <div>
                                         <input type="date" name="regist_end_date"
                                             class="form-control @error('regist_end_date') is-invalid @enderror"
-                                            value="{{ old('regist_end_date', $event->regist_end_date->format('Y-m-d')) }}">
+                                            value="{{ old('regist_end_date', $event->regist_end_date ? \Carbon\Carbon::parse($event->regist_end_date)->format('Y-m-d') : '') }}">
                                         @error('regist_end_date')
                                             <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror

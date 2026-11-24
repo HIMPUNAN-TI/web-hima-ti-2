@@ -47,7 +47,7 @@ class EventController extends Controller
             'description' => ['required', 'string'],
             'poster' => ['nullable', 'file', 'image', 'max:2048'],
             'certificate' => ['nullable', 'file', 'image', 'max:2048'],
-            'maps' => ['required', 'url'],
+            'maps' => ['required', 'string'],
         ], [
             'name.required' => 'Nama event wajib diisi',
             'price.required' => 'Harga wajib diisi',
@@ -67,13 +67,13 @@ class EventController extends Controller
             'certificate.image' => 'File sertifikat harus berupa gambar',
             'certificate.max' => 'Ukuran sertifikat maksimal 2MB',
             'maps.required' => 'Link maps wajib diisi',
-            'maps.url' => 'Link maps harus berupa URL yang valid',
         ]);
 
         try {
             $eventData = [
                 'name' => $validated['name'],
                 'price' => $validated['price'],
+                'quota' => $validated['quota'] ?? 100,
                 'date' => $validated['date'],
                 'regist_start_date' => $validated['regist_start_date'],
                 'regist_end_date' => $validated['regist_end_date'],
@@ -82,11 +82,22 @@ class EventController extends Controller
                 'maps' => $validated['maps'] ?? null,
             ];
 
+            // Pastikan folder upload tujuan tersedia
+            $postersDir = public_path('image/events/posters');
+            if (!is_dir($postersDir)) {
+                mkdir($postersDir, 0755, true);
+            }
+
+            $certsDir = public_path('image/events/certificates');
+            if (!is_dir($certsDir)) {
+                mkdir($certsDir, 0755, true);
+            }
+
             // Handle poster upload
             if ($request->hasFile('poster')) {
                 $posterFile = $request->file('poster');
                 $posterName = time() . '_poster_' . $posterFile->getClientOriginalName();
-                $posterFile->move(public_path('image/events/posters'), $posterName);
+                $posterFile->move($postersDir, $posterName);
                 $eventData['poster'] = $posterName;
             }
 
@@ -94,15 +105,16 @@ class EventController extends Controller
             if ($request->hasFile('certificate')) {
                 $certificateFile = $request->file('certificate');
                 $certificateName = time() . '_certificate_' . $certificateFile->getClientOriginalName();
-                $certificateFile->move(public_path('image/events/certificates'), $certificateName);
+                $certificateFile->move($certsDir, $certificateName);
                 $eventData['certificate'] = $certificateName;
             }
 
             Event::create($eventData);
 
             return redirect()->route('events.index')->with('success', 'Event berhasil dibuat.');
-        } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Terjadi kesalahan saat membuat event.')->withInput();
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('Gagal tambah event: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Terjadi kesalahan saat menambahkan event: ' . $e->getMessage())->withInput();
         }
     }
 
@@ -138,7 +150,7 @@ class EventController extends Controller
             'description' => ['required', 'string'],
             'poster' => ['nullable', 'file', 'image', 'max:2048'],
             'certificate' => ['nullable', 'file', 'image', 'max:2048'],
-            'maps' => ['required', 'url'],
+            'maps' => ['required', 'string'],
         ], [
             'name.required' => 'Nama event wajib diisi',
             'price.required' => 'Harga wajib diisi',
@@ -157,13 +169,13 @@ class EventController extends Controller
             'certificate.image' => 'File sertifikat harus berupa gambar',
             'certificate.max' => 'Ukuran sertifikat maksimal 2MB',
             'maps.required' => 'Link maps wajib diisi',
-            'maps.url' => 'Link maps harus berupa URL yang valid',
         ]);
 
         try {
             $eventData = [
                 'name' => $validated['name'],
                 'price' => $validated['price'],
+                'quota' => $validated['quota'] ?? $event->quota,
                 'date' => $validated['date'],
                 'regist_start_date' => $validated['regist_start_date'],
                 'regist_end_date' => $validated['regist_end_date'],
@@ -172,37 +184,53 @@ class EventController extends Controller
                 'maps' => $validated['maps'] ?? $event->maps,
             ];
 
+            // Pastikan folder upload tujuan tersedia
+            $postersDir = public_path('image/events/posters');
+            if (!is_dir($postersDir)) {
+                mkdir($postersDir, 0755, true);
+            }
+
+            $certsDir = public_path('image/events/certificates');
+            if (!is_dir($certsDir)) {
+                mkdir($certsDir, 0755, true);
+            }
+
             // Handle poster upload
             if ($request->hasFile('poster')) {
                 // Delete old poster if exists
-                if ($event->poster && file_exists(public_path('image/events/posters/' . $event->poster))) {
-                    unlink(public_path('image/events/posters/' . $event->poster));
-                }
+                try {
+                    if ($event->poster && file_exists($postersDir . '/' . $event->poster)) {
+                        @unlink($postersDir . '/' . $event->poster);
+                    }
+                } catch (\Throwable $e) {}
                 
                 $posterFile = $request->file('poster');
                 $posterName = time() . '_poster_' . $posterFile->getClientOriginalName();
-                $posterFile->move(public_path('image/events/posters'), $posterName);
+                $posterFile->move($postersDir, $posterName);
                 $eventData['poster'] = $posterName;
             }
 
             // Handle certificate upload
             if ($request->hasFile('certificate')) {
                 // Delete old certificate if exists
-                if ($event->certificate && file_exists(public_path('image/events/certificates/' . $event->certificate))) {
-                    unlink(public_path('image/events/certificates/' . $event->certificate));
-                }
+                try {
+                    if ($event->certificate && file_exists($certsDir . '/' . $event->certificate)) {
+                        @unlink($certsDir . '/' . $event->certificate);
+                    }
+                } catch (\Throwable $e) {}
                 
                 $certificateFile = $request->file('certificate');
                 $certificateName = time() . '_certificate_' . $certificateFile->getClientOriginalName();
-                $certificateFile->move(public_path('image/events/certificates'), $certificateName);
+                $certificateFile->move($certsDir, $certificateName);
                 $eventData['certificate'] = $certificateName;
             }
 
             $event->update($eventData);
 
             return redirect()->route('events.index')->with('success', 'Event berhasil diperbarui.');
-        } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Terjadi kesalahan saat memperbarui event.')->withInput();
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('Gagal update event: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Terjadi kesalahan saat memperbarui event: ' . $e->getMessage())->withInput();
         }
     }
 
